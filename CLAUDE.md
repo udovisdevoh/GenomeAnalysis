@@ -2,7 +2,7 @@
 
 Personal human genome analysis tool. It takes a raw consumer DNA test file (23andMe, AncestryDNA, MyHeritage…), parses the genotypes, enriches them from SNPedia and other public databases, and produces an interpretive report — including clinical associations.
 
-**Status: new project, no code written yet.** The structure below is the target, not the current state.
+**Status.** `Core` and `Annotations` exist and are covered by tests; `Web` has not been started. The annotation layer works: SNPedia and MyVariant.info clients, throttled HTTP, and the SQLite cache with an enforced offline mode.
 
 ## Core constraints
 
@@ -16,8 +16,19 @@ These take precedence over any technical consideration.
 
 - .NET Framework 4.8, C#
 - ASP.NET MVC 5 + Razor views; Web API 2 in the same project for AJAX calls (parsing progress, lazy loading of variant records)
-- SQLite or LocalDB, for caching external sources only
+- SQLite for caching external sources only, through **`System.Data.SQLite.Core`**. Not `Microsoft.Data.Sqlite`: on net48 it drags System.Memory facade assemblies whose versions do not reconcile, and the provider fails at type-initialisation unless binding redirects are hand-written. `System.Data.SQLite.Core` is built for .NET Framework and ships its own native binaries.
 - Visual Studio 2022, MSBuild (no `dotnet build` — this is .NET Framework)
+
+Projects are SDK-style csproj targeting `net48`, which keeps them hand-editable. The `Web` project will have to be classic-style, since MVC 5 and `System.Web` do not work under the SDK format.
+
+```sh
+MSBUILD="D:/programmes/Microsoft Visual Studio/2022/MSBuild/Current/Bin/MSBuild.exe"
+VSTEST="D:/programmes/Microsoft Visual Studio/2022/Common7/IDE/Extensions/TestPlatform/vstest.console.exe"
+
+"$MSBUILD" GenomeAnalysis.sln -t:Restore    # restore first; MSBuild does not do it implicitly
+"$MSBUILD" GenomeAnalysis.sln -v:minimal
+"$VSTEST" "GenomeAnalysis.Tests/bin/Debug/net48/GenomeAnalysis.Tests.dll"
+```
 
 ## Target solution structure
 
@@ -30,6 +41,8 @@ GenomeAnalysis.sln
 ```
 
 `Core` references neither `System.Web` nor `Annotations`. The engine receives annotations through interfaces defined in `Core` and implemented in `Annotations` — that is what makes the analysis testable without network or database.
+
+Every source is consumed through `CachingAnnotationSource`, never directly. Constructed with `allowNetwork: false`, a cache miss returns nothing instead of reaching out, which turns the privacy rule below into something the code enforces rather than something a reviewer has to notice. That is the mode to use for any lookup driven by the user's file.
 
 ## Input file formats
 

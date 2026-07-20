@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>GenomeAnalysis.Core</RootNamespace>
+    <AssemblyName>GenomeAnalysis.Core</AssemblyName>
+    <Description>Domain layer: genome models, parsers, strand resolution, rules engine. No web or network dependency.</Description>
+  </PropertyGroup>
+
+  <!--
+    Core must stay free of System.Web and of any network/database dependency.
+    Annotations are consumed through interfaces declared here and implemented
+    in GenomeAnalysis.Annotations. Do not add package references that pull in
+    HTTP clients or data providers.
+  -->
+
+</Project>

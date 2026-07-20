@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>GenomeAnalysis.Tests</RootNamespace>
+    <AssemblyName>GenomeAnalysis.Tests</AssemblyName>
+    <IsPackable>false</IsPackable>
+
+    <!--
+      Microsoft.Data.Sqlite pulls a chain of System.* facade assemblies whose
+      versions do not line up on .NET Framework. Without generated binding
+      redirects the SQLite provider fails to initialise at run time.
+    -->
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GenomeAnalysis.Core\GenomeAnalysis.Core.csproj" />
+    <ProjectReference Include="..\GenomeAnalysis.Annotations\GenomeAnalysis.Annotations.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
+    <PackageReference Include="xunit" Version="2.9.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+  </ItemGroup>
+
+</Project>

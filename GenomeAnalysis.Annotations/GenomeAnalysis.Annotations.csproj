@@ -1,0 +1,29 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>GenomeAnalysis.Annotations</RootNamespace>
+    <AssemblyName>GenomeAnalysis.Annotations</AssemblyName>
+    <Description>Clients for external annotation sources (SNPedia, MyVariant.info, Ensembl) and the local cache.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GenomeAnalysis.Core\GenomeAnalysis.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+
+    <!--
+      System.Data.SQLite.Core rather than Microsoft.Data.Sqlite: it is built for
+      .NET Framework and ships its own native binaries, avoiding the System.Memory
+      facade-assembly version conflicts that break the Microsoft provider on net48
+      without hand-written binding redirects.
+    -->
+    <PackageReference Include="System.Data.SQLite.Core" Version="1.0.119" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+</Project>

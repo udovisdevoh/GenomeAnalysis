@@ -1,5 +1,41 @@
-﻿################################################################################
+################################################################################
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
 /.vs
+
+## Build output
+[Bb]in/
+[Oo]bj/
+[Dd]ebug/
+[Rr]elease/
+
+## Visual Studio
+*.user
+*.suo
+*.userprefs
+
+## NuGet
+packages/
+*.nupkg
+
+## Test output
+[Tt]est[Rr]esult*/
+*.trx
+
+## Local annotation cache database
+*.db
+*.db-shm
+*.db-wal
+*.sqlite
+
+## ---------------------------------------------------------------
+## Genome data. A raw DNA file is health data and must never be
+## committed, not even the developer's own. Test fixtures are
+## synthetic and live under GenomeAnalysis.Tests/Fixtures/.
+## ---------------------------------------------------------------
+*.txt.gz
+genome*.txt
+*23andme*
+*AncestryDNA*
+/GenomeData/
