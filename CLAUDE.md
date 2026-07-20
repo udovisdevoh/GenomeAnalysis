@@ -1,41 +1,41 @@
 # GenomeAnalysis
 
-Outil d'analyse de génome humain personnel. On lui fournit un fichier brut de test ADN grand public (23andMe, AncestryDNA, MyHeritage…), il parse les génotypes, les enrichit à partir de SNPedia et d'autres bases publiques, et produit un rapport interprétatif — y compris sur des associations cliniques.
+Personal human genome analysis tool. It takes a raw consumer DNA test file (23andMe, AncestryDNA, MyHeritage…), parses the genotypes, enriches them from SNPedia and other public databases, and produces an interpretive report — including clinical associations.
 
-**État : projet neuf, aucun code encore écrit.** La structure décrite ci-dessous est la cible, pas l'existant.
+**Status: new project, no code written yet.** The structure below is the target, not the current state.
 
-## Contraintes fondamentales
+## Core constraints
 
-Ces points passent avant toute considération technique.
+These take precedence over any technical consideration.
 
-1. **Mono-poste, local.** L'application tourne sur la machine de l'utilisateur (IIS Express / `localhost`). Jamais déployée sur un serveur public, ni comptes ni authentification. Ne pas ajouter d'upload multi-utilisateur, de stockage cloud ou de télémétrie.
-2. **Les données génomiques ne sortent jamais de la machine.** Aucun génotype, aucun fichier, aucune donnée dérivée n'est transmise à une API externe. On n'envoie que des identifiants de variants. Voir « Confidentialité des appels externes » — la règle est plus subtile qu'elle n'en a l'air. Aucun génotype dans les logs, messages d'erreur ou traces.
-3. **L'outil restitue du contenu clinique, il ne pose pas de diagnostic.** C'est le cœur du projet : associations maladie, statut de porteur, pharmacogénomique. La contrainte n'est donc pas de censurer ce contenu, mais de le présenter avec sa provenance, son niveau de preuve et ses limites. Voir « Restitution du contenu clinique ».
+1. **Single machine, local.** The application runs on the user's own machine (IIS Express / `localhost`). It is never deployed to a public server, and there are no accounts or authentication. Do not add multi-user upload, cloud storage, or telemetry.
+2. **Genomic data never leaves the machine.** No genotype, no file, no derived data is sent to an external API. Only variant identifiers go out. See "External call privacy" — the rule is subtler than it looks. No genotypes in logs, error messages, or traces.
+3. **The tool surfaces clinical content; it does not diagnose.** This is the point of the project: disease associations, carrier status, pharmacogenomics. The constraint is therefore not to censor that content, but to present it with its provenance, evidence level, and limits. See "Presenting clinical content".
 
-## Pile technique
+## Tech stack
 
 - .NET Framework 4.8, C#
-- ASP.NET MVC 5 + vues Razor ; Web API 2 dans le même projet pour les appels AJAX (progression du parsing, chargement paresseux des fiches)
-- SQLite ou LocalDB pour le cache des sources externes uniquement
-- Visual Studio 2022, MSBuild (pas de `dotnet build` — c'est du .NET Framework)
+- ASP.NET MVC 5 + Razor views; Web API 2 in the same project for AJAX calls (parsing progress, lazy loading of variant records)
+- SQLite or LocalDB, for caching external sources only
+- Visual Studio 2022, MSBuild (no `dotnet build` — this is .NET Framework)
 
-## Structure cible de la solution
+## Target solution structure
 
 ```
 GenomeAnalysis.sln
-├── GenomeAnalysis.Web/          MVC 5 + Web API 2 — contrôleurs, vues, rapports
-├── GenomeAnalysis.Core/         Domaine : modèles, parseurs, moteur de règles. Aucune dépendance web ni réseau.
-├── GenomeAnalysis.Annotations/  Clients des sources externes (SNPedia, Ensembl, ClinVar…) + cache
-└── GenomeAnalysis.Tests/        Tests unitaires
+├── GenomeAnalysis.Web/          MVC 5 + Web API 2 — controllers, views, reports
+├── GenomeAnalysis.Core/         Domain: models, parsers, rules engine. No web or network dependency.
+├── GenomeAnalysis.Annotations/  Clients for external sources (SNPedia, Ensembl, ClinVar…) + cache
+└── GenomeAnalysis.Tests/        Unit tests
 ```
 
-`Core` ne référence ni `System.Web` ni `Annotations`. Le moteur reçoit ses annotations via des interfaces définies dans `Core` et implémentées dans `Annotations` — c'est ce qui rend l'analyse testable sans réseau ni base.
+`Core` references neither `System.Web` nor `Annotations`. The engine receives annotations through interfaces defined in `Core` and implemented in `Annotations` — that is what makes the analysis testable without network or database.
 
-## Formats de fichiers d'entrée
+## Input file formats
 
-Détecter le fournisseur à partir de l'en-tête, pas de l'extension. Les fichiers font 600 k à 1 M de lignes : parser en flux (`StreamReader` ligne à ligne), jamais `File.ReadAllLines`.
+Detect the provider from the header, not the file extension. Files run 600k to 1M lines: parse as a stream (`StreamReader`, line by line), never `File.ReadAllLines`.
 
-**23andMe** — TSV, en-tête préfixé `#`, colonnes `rsid, chromosome, position, genotype` :
+**23andMe** — TSV, header lines prefixed with `#`, columns `rsid, chromosome, position, genotype`:
 
 ```
 # rsid	chromosome	position	genotype
@@ -43,123 +43,123 @@ rs4477212	1	82154	AA
 rs3094315	1	752566	AG
 ```
 
-**AncestryDNA** — TSV aussi, mais allèles dans deux colonnes séparées (`allele1`, `allele2`) et appels manquants notés `0` au lieu de `--`.
+**AncestryDNA** — also TSV, but alleles are in two separate columns (`allele1`, `allele2`) and no-calls are written `0` instead of `--`.
 
-Pièges à gérer dès le parseur :
+Pitfalls to handle in the parser itself:
 
-- Appels manquants : `--`, `DD`, `II`, `0`. Les exclure de l'analyse, ne pas les traiter comme des génotypes.
-- Chromosomes non autosomiques : `X`, `Y`, `MT` peuvent porter un seul allèle (hémizygote).
-- Build de référence : GRCh37 vs GRCh38 selon le millésime. Une position n'a de sens qu'avec son build — le lire dans l'en-tête et le conserver dans le modèle.
-- Identifiants internes au fournisseur (`i5000940`) sans correspondance dans les bases publiques.
-- **rsID fusionnés ou retirés.** dbSNP fusionne régulièrement des rsID ; un fichier de 2013 contient des identifiants qui ne sont plus courants. Résoudre vers le rsID courant avant toute recherche, sinon des variants réels ressortent « inconnus ».
+- No-calls: `--`, `DD`, `II`, `0`. Exclude them from analysis; do not treat them as genotypes.
+- Non-autosomal chromosomes: `X`, `Y`, `MT` may carry a single allele (hemizygous).
+- Reference build: GRCh37 vs GRCh38 depending on the file's vintage. A position is only meaningful together with its build — read it from the header and keep it in the model.
+- Provider-internal identifiers (`i5000940`) with no counterpart in public databases.
+- **Merged or withdrawn rsIDs.** dbSNP merges rsIDs regularly; a file from 2013 contains identifiers that are no longer current. Resolve to the current rsID before any lookup, otherwise real variants come back "unknown".
 
-## Sources de données
+## Data sources
 
-SNPedia reste la source principale pour le texte lisible, mais elle est communautaire, inégale et parfois périmée. Pour tout ce qui est clinique, elle ne fait pas autorité seule — la croiser.
+SNPedia remains the primary source for human-readable text, but it is community-maintained, uneven, and sometimes stale. For anything clinical it is not authoritative on its own — cross-check it.
 
 ### SNPedia
 
-- Endpoint : `https://bots.snpedia.com/api.php` (API MediaWiki). C'est l'accès prévu pour les clients automatisés ; ne pas scraper les pages HTML de `snpedia.com`.
-- Licence **CC BY-NC-SA 3.0 US** : usage non commercial, attribution obligatoire, partage à l'identique. L'attribution doit apparaître dans les rapports générés. Le *ShareAlike* se propage — en tenir compte avant d'envisager quoi que ce soit de commercial.
-- Nommage des pages : fiche SNP `Rs53576` (initiale capitale, reste minuscule) ; fiche génotype `Rs53576(A;A)`, allèles séparés par `;` entre parenthèses.
-- Métadonnées (`Magnitude`, `Repute`, `Summary`, `Orientation`, `StabilizedOrientation`) : propriétés Semantic MediaWiki, à lire via l'API sémantique plutôt que par regex sur le wikitext.
-- `Magnitude` est un indice d'intérêt subjectif (0–10) propre à SNPedia, pas une mesure de risque. Ne pas le présenter comme tel.
+- Endpoint: `https://bots.snpedia.com/api.php` (MediaWiki API). This is the intended access path for automated clients; do not scrape the HTML pages on `snpedia.com`.
+- Licensed **CC BY-NC-SA 3.0 US**: non-commercial use, attribution required, share-alike. Attribution must appear in generated reports. Share-alike is viral — worth knowing before considering anything commercial.
+- Page naming: SNP page `Rs53576` (leading capital, rest lowercase); genotype page `Rs53576(A;A)`, alleles separated by `;` inside parentheses.
+- Metadata (`Magnitude`, `Repute`, `Summary`, `Orientation`, `StabilizedOrientation`) are Semantic MediaWiki properties — read them through the semantic API rather than by regex over wikitext.
+- `Magnitude` is SNPedia's own subjective interest score (0–10), not a risk measure. Do not present it as one.
 
-### Autres sources publiques
+### Other public sources
 
-| Source | Usage | Accès |
+| Source | Use | Access |
 |---|---|---|
-| **MyVariant.info** | Agrégateur (dbSNP, ClinVar, gnomAD, CADD, dbNSFP) en un seul appel | REST, sans clé, POST par lot |
-| **Ensembl REST** | Consequence VEP, gènes, correspondance entre builds | `rest.ensembl.org`, sans clé |
-| **NCBI E-utilities** | dbSNP : rsID fusionnés/retirés, positions de référence | Clé gratuite recommandée (débit plus élevé) |
-| **ClinVar** | Signification clinique + niveau de revue (étoiles) — fait autorité | Via NCBI ou MyVariant ; domaine public |
-| **gnomAD** | Fréquences alléliques par population | GraphQL |
-| **GWAS Catalog** (EBI) | Associations traits/variants, tailles d'effet, p-values | REST |
-| **PharmGKB / CPIC** | Pharmacogénomique, recommandations posologiques | Vérifier la licence avant intégration — plus restrictive |
+| **MyVariant.info** | Aggregator (dbSNP, ClinVar, gnomAD, CADD, dbNSFP) in a single call | REST, no key, batch POST |
+| **Ensembl REST** | VEP consequences, genes, cross-build mapping | `rest.ensembl.org`, no key |
+| **NCBI E-utilities** | dbSNP: merged/withdrawn rsIDs, reference positions | Free key recommended (higher rate limit) |
+| **ClinVar** | Clinical significance + review status (stars) — authoritative | Via NCBI or MyVariant; public domain |
+| **gnomAD** | Population allele frequencies | GraphQL |
+| **GWAS Catalog** (EBI) | Trait/variant associations, effect sizes, p-values | REST |
+| **PharmGKB / CPIC** | Pharmacogenomics, dosing guidance | Check licensing before integrating — more restrictive |
 
-Priorité en cas de désaccord entre sources sur une question clinique : **ClinVar (revue élevée) > GWAS Catalog > SNPedia**. Un désaccord se signale dans le rapport, il ne se tranche pas en silence.
+Precedence when sources disagree on a clinical question: **ClinVar (high review status) > GWAS Catalog > SNPedia**. A disagreement is surfaced in the report, not silently resolved.
 
-### Confidentialité des appels externes
+### External call privacy
 
-La règle « on n'envoie que des identifiants » ne suffit pas, et c'est le piège le plus facile à manquer :
+"We only send identifiers" is not sufficient, and this is the easiest trap to miss:
 
-> **Interroger uniquement les variants où l'utilisateur porte un allèle notable révèle son génotype**, même sans jamais transmettre une seule lettre d'allèle. Le motif des requêtes est lui-même la donnée.
+> **Querying only the variants where the user carries a notable allele reveals their genotype**, even if not a single allele letter is ever transmitted. The query pattern is itself the data.
 
-Conséquences à respecter :
+What follows from this:
 
-- Peupler le cache à partir du **manifeste de la puce** (l'ensemble des positions testées par le fournisseur, qui est public), pas à partir des variants retenus pour l'utilisateur.
-- Privilégier les **exports en masse** — SNPedia publie `snpedia.com/index.php/Bulk`, ClinVar et gnomAD des fichiers complets. Un cache prérempli hors ligne supprime le problème à la racine et évite des dizaines de milliers d'appels unitaires.
-- Aucun appel réseau ne doit dépendre du contenu du fichier utilisateur. Si l'implémentation rend cela impossible, c'est la conception qu'il faut revoir.
-- Débit : ~1 req/s en série vers SNPedia, respecter les limites publiées des autres. User-Agent identifiant l'outil. Sur `429`/`5xx`, backoff exponentiel — jamais de retry serré.
+- Populate the cache from the **chip manifest** (the set of positions the provider tests, which is public), not from the variants selected for this user.
+- Prefer **bulk exports** — SNPedia publishes `snpedia.com/index.php/Bulk`, and ClinVar and gnomAD publish full files. An offline pre-populated cache removes the problem at the root and avoids tens of thousands of single-variant calls.
+- No network call may depend on the contents of the user's file. If the implementation makes that impossible, the design is what needs revisiting.
+- Rate: ~1 req/s serially against SNPedia, and respect published limits elsewhere. Send a User-Agent identifying the tool. On `429`/`5xx`, exponential backoff — never a tight retry loop.
 
-## Orientation de brin
+## Strand orientation
 
-Le piège technique majeur du projet. Sans cette étape, une partie des associations sera **silencieusement fausse** — bien pire qu'une absence de résultat.
+The major technical pitfall in this project. Without this step, some associations will be **silently wrong** — far worse than returning nothing.
 
-L'ADN est double brin : un `A` sur le brin plus est un `T` sur le brin moins, un `C` est un `G`. Les fournisseurs de tests et SNPedia ne rapportent pas toujours sur le même brin. Un génotype rapporté `AA` par 23andMe peut correspondre à la fiche `Rs…(T;T)`.
+DNA is double-stranded: an `A` on the plus strand is a `T` on the minus strand, a `C` is a `G`. Test providers and SNPedia do not always report on the same strand. A genotype reported `AA` by 23andMe may correspond to the `Rs…(T;T)` page.
 
-SNPedia expose deux propriétés distinctes :
+SNPedia exposes two distinct properties:
 
-- **`Orientation`** — orientation du variant dans le build courant (GRCh38).
-- **`StabilizedOrientation`** — la même notion, mais cohérente avec les pages génotype associées : elle n'est basculée que si les pages génotype liées le sont aussi.
+- **`Orientation`** — the variant's orientation in the current build (GRCh38).
+- **`StabilizedOrientation`** — the same notion, but consistent with the associated genotype pages: it is only flipped when the linked genotype pages are flipped too.
 
-**C'est `StabilizedOrientation` qui doit servir à faire correspondre un génotype à une page génotype.** Utiliser `Orientation` à sa place produit des correspondances fausses. Quand `StabilizedOrientation` vaut `minus`, complémenter les allèles avant la recherche.
+**`StabilizedOrientation` is the one to use when matching a genotype to a genotype page.** Using `Orientation` instead produces incorrect matches. When `StabilizedOrientation` is `minus`, complement the alleles before lookup.
 
-### Flips ambigus — le cas qu'on ne peut pas résoudre
+### Ambiguous flips — the case that cannot be resolved
 
-Pour un SNP **A/T ou C/G**, la complémentation ne lève aucune ambiguïté : `A;A` complémenté donne `T;T`, qui est *aussi* un génotype valide du même SNP. Aucune logique de brin ne permet de trancher à partir des allèles seuls. SNPedia nomme ces cas *ambiguous flips*.
+For an **A/T or C/G** SNP, complementing resolves nothing: `A;A` complemented is `T;T`, which is *also* a valid genotype for that same SNP. No strand logic can decide between them from the alleles alone. SNPedia calls these *ambiguous flips*.
 
-Ces variants doivent être **détectés et signalés comme indéterminés**, jamais devinés. Une correspondance arbitraire sur un SNP palindromique peut inverser complètement le sens d'une association (allèle protecteur présenté comme allèle à risque). Interdire tout choix par défaut sur ce chemin de code.
+These variants must be **detected and reported as indeterminate**, never guessed. An arbitrary match on a palindromic SNP can invert the meaning of an association entirely — a protective allele presented as a risk allele. Forbid any default choice on that code path.
 
-À couvrir par des tests dédiés : orientation `plus`, orientation `minus` nécessitant complémentation, SNP palindromique homozygote (indéterminé attendu), et SNP palindromique hétérozygote (`A;T` — inchangé par complémentation, donc exploitable).
+Dedicated tests to cover: `plus` orientation, `minus` orientation requiring complementation, homozygous palindromic SNP (indeterminate expected), and heterozygous palindromic SNP (`A;T` — unchanged by complementation, therefore usable).
 
-## Moteur d'analyse et rapport
+## Analysis engine and report
 
-Le rapport ne doit pas être une liste plate d'un SNP par ligne. La plupart des interprétations utiles reposent sur une **combinaison** de marqueurs.
+The report must not be a flat one-SNP-per-row list. Most useful interpretations rest on a **combination** of markers.
 
-### Règles multi-marqueurs
+### Multi-marker rules
 
-Le moteur travaille sur des règles déclaratives (données, pas code compilé), chacune déclarant les marqueurs dont elle dépend et la façon de les combiner. Cas réels à supporter :
+The engine works from declarative rules (data, not compiled code), each declaring the markers it depends on and how they combine. Real cases to support:
 
-- **Haplotypes composés** — APOE est l'exemple canonique : les allèles ε2/ε3/ε4 se déduisent de la combinaison de `rs429358` et `rs7412`. Aucun des deux SNP pris isolément ne donne l'information.
-- **Hétérozygotie composite** — deux variants pathogènes différents dans le même gène, par exemple HFE `rs1800562` (C282Y) et `rs1799945` (H63D) pour l'hémochromatose.
-- **Étoiles pharmacogénomiques** — les allèles `*1`, `*2`… de CYP2D6 ou CYP2C19 sont définis par des combinaisons de positions ; le diplotype détermine le phénotype métaboliseur.
-- **Scores polygéniques** — agrégation pondérée de nombreux variants à faible effet.
+- **Compound haplotypes** — APOE is the canonical example: the ε2/ε3/ε4 alleles are derived from the combination of `rs429358` and `rs7412`. Neither SNP alone carries the information.
+- **Compound heterozygosity** — two different pathogenic variants in the same gene, e.g. HFE `rs1800562` (C282Y) and `rs1799945` (H63D) for hemochromatosis.
+- **Pharmacogenomic star alleles** — `*1`, `*2`… alleles of CYP2D6 or CYP2C19 are defined by combinations of positions; the diplotype determines the metabolizer phenotype.
+- **Polygenic scores** — weighted aggregation of many small-effect variants.
 
-### Limites structurelles à encoder dans le moteur
+### Structural limits to encode in the engine
 
-Ce sont des propriétés des données de puce, pas des défauts d'implémentation. Les traiter comme des cas de premier ordre :
+These are properties of array data, not implementation shortcomings. Treat them as first-class cases:
 
-- **Les données de puce ne sont pas phasées.** On ne sait pas si deux variants sont sur la même copie du chromosome ou sur les deux copies opposées. L'hétérozygotie composite vraie (en *trans*, les deux copies atteintes) est donc **indiscernable** de deux variants en *cis* (une copie saine intacte). Le rapport doit dire « compatible avec », jamais « confirmé ».
-- **Marqueur requis absent.** Si une règle a besoin de cinq positions et que la puce n'en couvre que trois, le résultat est **indéterminé** — jamais une supposition sur les positions manquantes.
-- **Ne pas multiplier naïvement les odds ratios.** Les OR publiés supposent l'indépendance et proviennent de populations différentes ; les composer mécaniquement surestime le résultat.
+- **Array data is unphased.** There is no way to know whether two variants sit on the same chromosome copy or on opposite copies. True compound heterozygosity (in *trans*, both copies affected) is therefore **indistinguishable** from two variants in *cis* (one intact copy). The report must say "consistent with", never "confirmed".
+- **Required marker missing.** If a rule needs five positions and the chip covers three, the result is **indeterminate** — never an assumption about the missing positions.
+- **Do not naively multiply odds ratios.** Published ORs assume independence and come from different populations; composing them mechanically overstates the result.
 
-Un résultat d'évaluation doit donc distinguer au minimum : `Determinate`, `Indeterminate` (données insuffisantes ou flip ambigu), `NotApplicable`. Un `Indeterminate` s'affiche, avec sa raison — c'est une information utile, pas un échec à masquer.
+An evaluation result must therefore distinguish at minimum: `Determinate`, `Indeterminate` (insufficient data or ambiguous flip), `NotApplicable`. An `Indeterminate` is displayed along with its reason — it is useful information, not a failure to hide.
 
-### Ce que « rapport intelligent » veut dire ici
+### What "intelligent report" means here
 
-Priorisation et mise en contexte, **pas** génération de texte médical. Concrètement : classer par force de preuve et pertinence, regrouper les marqueurs d'un même mécanisme, contextualiser par la fréquence dans la population (un variant présent chez 40 % des Européens ne se présente pas comme une découverte), et permettre le drill-down vers la source.
+Prioritization and contextualization, **not** medical text generation. Concretely: rank by evidence strength and relevance, group markers belonging to the same mechanism, contextualize with population frequency (a variant present in 40% of Europeans is not presented as a discovery), and allow drill-down to the source.
 
-Toute affirmation affichée doit être traçable jusqu'à une source citée. Si un jour un LLM est employé pour rédiger les synthèses, il doit être contraint à reformuler des sources fournies avec citations — jamais à produire une affirmation clinique de lui-même.
+Every claim displayed must be traceable to a cited source. If an LLM is ever used to write summaries, it must be constrained to rephrasing supplied sources with citations — never to producing a clinical claim of its own.
 
-## Restitution du contenu clinique
+## Presenting clinical content
 
-L'outil affiche des associations de maladies. Ces règles encadrent *comment*, et ne sont pas négociables.
+The tool displays disease associations. These rules govern *how*, and are not negotiable.
 
-- **Les données brutes de puce ne sont pas de qualité clinique.** Une étude de référence (Tandy-Connor et al., *Genetics in Medicine*, 2018) a trouvé qu'environ 40 % des variants signalés dans des données brutes grand public étaient des faux positifs à la vérification en laboratoire accrédité. Toute découverte à fort impact doit être présentée comme **nécessitant une confirmation** en laboratoire clinique.
-- **L'absence de résultat n'est pas une absence de risque.** Une puce interroge des positions fixes et prédéfinies. Le test BRCA de 23andMe, par exemple, couvre trois variants fondateurs ashkénazes sur plusieurs milliers connus. Ne jamais formuler « aucun risque détecté » ; formuler « aucune des N positions testées ne porte de variant connu ».
-- **Graduer selon l'impact.** Un SNP de métabolisme de la caféine et une variante Huntington ou BRCA ne se présentent pas de la même façon. Les résultats à fort impact ou actionnables doivent recommander explicitement un conseil génétique professionnel.
-- **Afficher le niveau de preuve.** Le niveau de revue ClinVar (étoiles) et le statut de la classification importent autant que la classification : un VUS à une étoile n'est pas une variante pathogène à quatre étoiles. Ne pas aplatir cette distinction.
-- **Jamais prescriptif.** Pas de « vous devriez prendre… », pas de « vous avez la maladie X ». Formuler en termes d'association et de probabilité, au conditionnel.
-- Réserve explicite sur toute sortie utilisateur : information éducative, non un diagnostic, ne remplace pas un professionnel de santé.
+- **Raw array data is not clinical grade.** A reference study (Tandy-Connor et al., *Genetics in Medicine*, 2018) found roughly 40% of variants reported in raw consumer data were false positives on confirmation in an accredited laboratory. Any high-impact finding must be presented as **requiring confirmatory clinical testing**.
+- **Absence of a finding is not absence of risk.** An array interrogates fixed, predefined positions. 23andMe's BRCA test, for instance, covers three Ashkenazi founder variants out of thousands known. Never phrase as "no risk detected"; phrase as "none of the N tested positions carries a known variant".
+- **Scale presentation to impact.** A caffeine metabolism SNP and a Huntington or BRCA variant do not get the same treatment. High-impact or actionable findings must explicitly recommend professional genetic counselling.
+- **Show the evidence level.** ClinVar review status (stars) and classification status matter as much as the classification itself: a one-star VUS is not a four-star pathogenic variant. Do not flatten that distinction.
+- **Never prescriptive.** No "you should take…", no "you have condition X". Phrase in terms of association and probability, in the conditional.
+- Explicit disclaimer on all user-facing output: educational information, not a diagnosis, not a substitute for a healthcare professional.
 
-## Tests
+## Testing
 
-- Parsing et moteur de règles se testent sans réseau ni base : injecter les interfaces d'annotation par des doubles de test.
-- Fixtures synthétiques (quelques dizaines de lignes par format), **jamais un vrai fichier de génome** dans le dépôt — y compris celui du développeur.
-- Priorités : appels manquants, hémizygotie X/Y/MT, complémentation de brin, flip ambigu, rsID fusionné, marqueur requis absent d'une règle multi-SNP, dérivation d'un haplotype (APOE fait un bon cas de référence), fichier tronqué ou en-tête inattendu.
+- Parsing and the rules engine are tested without network or database: inject the annotation interfaces with test doubles.
+- Synthetic fixtures (a few dozen lines per format), **never a real genome file** in the repository — including the developer's own.
+- Priorities: no-calls, X/Y/MT hemizygosity, strand complementation, ambiguous flip, merged rsID, missing required marker in a multi-SNP rule, haplotype derivation (APOE makes a good reference case), truncated file or unexpected header.
 
 ## Conventions
 
-- Le domaine parle anglais dans le code (`Genotype`, `RiskAllele`, `Haplotype`, `Chromosome`) ; l'interface utilisateur est en français.
-- Un fichier de génome est une donnée de santé : le traiter comme un secret, pas comme un fichier d'entrée ordinaire.
+- The domain speaks English in code (`Genotype`, `RiskAllele`, `Haplotype`, `Chromosome`); **the user interface is in French**.
+- A genome file is health data: treat it as a secret, not as an ordinary input file.
