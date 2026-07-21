@@ -167,7 +167,7 @@ namespace GenomeAnalysis.Annotations.Gwas
                         ExtractRiskAllele(entry),
                         ExtractPubMedId(entry),
                         null,
-                        Attribution(rsId),
+                        AssociationAttribution(rsId, entry),
                         trait.Uri));
                 }
             }
@@ -214,8 +214,40 @@ namespace GenomeAnalysis.Annotations.Gwas
             return dash >= 0 && dash < allele.Length - 1 ? allele.Substring(dash + 1) : allele;
         }
 
+        /// <summary>
+        /// PubMed identifiers are not available from this endpoint.
+        /// </summary>
+        /// <remarks>
+        /// The <c>associationBySnp</c> projection embeds no study object, only a
+        /// link to one — so a citation costs an extra request per association, and
+        /// there are thousands. The GWAS Catalog's downloadable association TSV
+        /// carries <c>PUBMEDID</c> for every row in one file, and that is the right
+        /// way to fill this in. Until then the per-association record URL below
+        /// provides the drill-down, and this returns null rather than pretending.
+        /// </remarks>
         private static string? ExtractPubMedId(JObject entry) =>
             entry.SelectToken("study.publicationInfo.pubmedId")?.ToString();
+
+        /// <summary>
+        /// Attribution pointing at the individual curated association record rather
+        /// than the variant page, so a displayed claim links to the exact row it
+        /// came from.
+        /// </summary>
+        private static SourceAttribution AssociationAttribution(string rsId, JObject entry)
+        {
+            var self = entry.SelectToken("_links.self.href")?.Value<string>();
+
+            if (string.IsNullOrWhiteSpace(self))
+            {
+                return Attribution(rsId);
+            }
+
+            return new SourceAttribution(
+                "GWAS Catalog (EBI/NHGRI)",
+                "EMBL-EBI terms of use; open data",
+                "https://www.ebi.ac.uk/about/terms-of-use",
+                self);
+        }
 
         private static SourceAttribution Attribution(string rsId) =>
             new SourceAttribution(

@@ -118,10 +118,20 @@ That ordering is the design, not an optimisation. The harvest happens with no us
 GenomeAnalysis.Harvester/bin/Debug/net48/GenomeAnalysis.Harvester.exe   # ~50 s for 48 variants
 ```
 
-The harvester merges two sources per variant, because neither is sufficient:
+`data/pharmacogenomics.json` holds CPIC's tables for the 21 genes it rates level A, and `--cpic-only` rebuilds just that file in seconds instead of re-querying every variant.
+
+The harvester merges several sources, because none is sufficient alone:
 
 - **Ensembl** supplies `allele_string` and strand. The allele set is what lets strand resolution detect a palindromic variant; without it `StrandResolver` refuses every lookup. It also supplies `synonyms`, from which merged rsIDs are extracted — that is what makes a 2013 file resolve.
 - **MyVariant.info** supplies ClinVar significance with review status, and gnomAD frequency.
+- **GWAS Catalog** supplies curated trait associations with effect sizes and p-values, which is what makes ranking by evidence possible rather than by whichever finding sounds most alarming. `TraitAssociation` exposes `IsGenomeWideSignificant` (the conventional 5×10⁻⁸ threshold) and `IsNegligibleEffect` (odds ratio between 0.91 and 1.10 — routine GWAS noise at the individual level).
+- **CPIC** supplies the star-allele data no per-variant source has: which positions define each allele, and which phenotype each function pair implies. It also expands the seed list — those defining positions are exactly what a chip must cover for a diplotype call to be possible.
+
+### Store the rule, not its expansion
+
+CPIC publishes every diplotype explicitly, which is the Cartesian product of a gene's alleles: RYR1 alone is 60 378 rows, and the full dump came to 46 MB. But those rows encode only two things — each allele's function, and the phenotype a pair of functions produces. Keeping those two tables reproduces everything from 6 rules instead of 60 378 rows, and brings the file to 104 KB.
+
+That is also the form the engine can reason with, and it matches the "declarative rules, data not compiled code" requirement below. Watch for the same shape elsewhere: a combinatorial table is nearly always a derived artefact.
 
 Re-run it after editing the seed list. The output is committed: it is public reference data, it makes the tool work offline out of the box, and its provenance block records every source licence.
 
@@ -132,6 +142,10 @@ Both of these passed fixture tests and were only exposed by live responses.
 - **Do not rank `ClinicalSignificance` by its enum order.** `Other`, `Association` and `RiskFactor` are declared above `Pathogenic`, so `Max()` returned `Other` for HFE C282Y — a well-established pathogenic variant came out unclassified. Rank on the pathogenicity axis explicitly.
 - **A minor allele frequency above 0.5 is the major allele.** Ensembl's `MAF` returns 0.98274 for rs6025 (factor V Leiden), whose risk allele is near 2%. Taken literally it marks a rare pathogenic variant as common, and the report plays it down. `AnnotationMerge` reads any value above 0.5 as its complement.
 - Aggregating ClinVar review status by taking the **weakest** submission sinks any well-studied variant: one submission out of forty without criteria drags an expert-panel classification to zero stars. Follow the best-reviewed submission and read the classification from that level.
+
+### Known gap
+
+GWAS trait associations carry no PubMed identifier. The `associationBySnp` projection embeds no study object, only a link, so a citation would cost one extra request per association across thousands. Each association still links to its own curated record, which is a real drill-down, but the proper fix is the GWAS Catalog's downloadable association TSV — it carries `PUBMEDID` for every row in a single file, and that is the bulk-export path this project prefers anyway.
 
 ## Strand orientation
 
