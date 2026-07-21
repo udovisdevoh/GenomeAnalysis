@@ -172,6 +172,104 @@ namespace GenomeAnalysis.Annotations.Local
                 string.IsNullOrWhiteSpace(label) ? rsId! : label!);
         }
 
+        /// <summary>
+        /// Reads the pharmacogene tables the harvester produced from CPIC.
+        /// </summary>
+        public static IReadOnlyList<Pharmacogene> LoadPharmacogenes(string path)
+        {
+            return File.Exists(path)
+                ? ParsePharmacogenes(File.ReadAllText(path, Encoding.UTF8))
+                : new List<Pharmacogene>();
+        }
+
+        public static IReadOnlyList<Pharmacogene> ParsePharmacogenes(string json)
+        {
+            var genes = new List<Pharmacogene>();
+
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return genes;
+            }
+
+            JObject root;
+
+            try
+            {
+                root = JObject.Parse(json);
+            }
+            catch (JsonException)
+            {
+                return genes;
+            }
+
+            if (!(root["genes"] is JObject geneObject))
+            {
+                return genes;
+            }
+
+            foreach (var property in geneObject.Properties())
+            {
+                if (!(property.Value is JObject entry))
+                {
+                    continue;
+                }
+
+                var alleles = new List<StarAllele>();
+
+                foreach (var allele in (entry["starAlleles"] as JArray)?.OfType<JObject>()
+                                       ?? Enumerable.Empty<JObject>())
+                {
+                    var name = allele["name"]?.Value<string>();
+
+                    if (string.IsNullOrWhiteSpace(name) || !(allele["definitions"] is JObject definitions))
+                    {
+                        continue;
+                    }
+
+                    var map = new Dictionary<string, char>(StringComparer.OrdinalIgnoreCase);
+
+                    foreach (var definition in definitions.Properties())
+                    {
+                        var value = definition.Value?.Value<string>();
+
+                        if (!string.IsNullOrWhiteSpace(value) && value!.Length == 1)
+                        {
+                            map[definition.Name.Trim().ToLowerInvariant()] = char.ToUpperInvariant(value[0]);
+                        }
+                    }
+
+                    if (map.Count > 0)
+                    {
+                        alleles.Add(new StarAllele(name!, allele["function"]?.Value<string>(), map));
+                    }
+                }
+
+                var rules = new List<(string, string, string)>();
+
+                foreach (var rule in (entry["phenotypeRules"] as JArray)?.OfType<JObject>()
+                                     ?? Enumerable.Empty<JObject>())
+                {
+                    var first = rule["function1"]?.Value<string>();
+                    var second = rule["function2"]?.Value<string>();
+                    var phenotype = rule["phenotype"]?.Value<string>();
+
+                    if (!string.IsNullOrWhiteSpace(first) &&
+                        !string.IsNullOrWhiteSpace(second) &&
+                        !string.IsNullOrWhiteSpace(phenotype))
+                    {
+                        rules.Add((first!, second!, phenotype!));
+                    }
+                }
+
+                if (alleles.Count > 0)
+                {
+                    genes.Add(new Pharmacogene(property.Name, alleles, rules));
+                }
+            }
+
+            return genes;
+        }
+
         private static bool TryParseKind(string? value, out RuleKind kind)
         {
             switch ((value ?? string.Empty).Trim().ToLowerInvariant())

@@ -45,6 +45,8 @@ namespace GenomeAnalysis.App
         private VariantDatabase? _database;
         private IReadOnlyList<GenomeAnalysis.Core.Rules.RuleDefinition> _rules =
             new List<GenomeAnalysis.Core.Rules.RuleDefinition>();
+        private IReadOnlyList<GenomeAnalysis.Core.Rules.Pharmacogene> _pharmacogenes =
+            new List<GenomeAnalysis.Core.Rules.Pharmacogene>();
         private IReadOnlyList<Finding> _findings = new List<Finding>();
 
         public MainForm()
@@ -256,6 +258,8 @@ namespace GenomeAnalysis.App
             }
 
             _rules = RuleLoader.Load(Path.Combine(FindRepositoryRoot(), "data", "rules.json"));
+            _pharmacogenes = RuleLoader.LoadPharmacogenes(
+                Path.Combine(FindRepositoryRoot(), "data", "pharmacogenomics.json"));
 
             _databaseLabel.Text =
                 "Base locale : " + _database.Count.ToString("N0") + " variants, " +
@@ -338,7 +342,10 @@ namespace GenomeAnalysis.App
                     reader.Statistics,
                     findings,
                     new AnalysisSummary(findings),
-                    new GenomeAnalysis.Core.Rules.RuleEngine(_rules).Evaluate(findings));
+                    new GenomeAnalysis.Core.Rules.RuleEngine(_rules).Evaluate(findings)
+                        .Concat(new GenomeAnalysis.Core.Rules.PharmacogenomicsEngine(_pharmacogenes)
+                            .Evaluate(findings))
+                        .ToList());
             }
         }
 

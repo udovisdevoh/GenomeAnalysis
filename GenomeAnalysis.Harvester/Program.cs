@@ -97,13 +97,15 @@ namespace GenomeAnalysis.Harvester
                 {
                     var rsIds = await cpic.GetDefiningRsIdsAsync(gene, cancellationSource.Token).ConfigureAwait(false);
                     var diplotypes = await cpic.GetDiplotypesAsync(gene, cancellationSource.Token).ConfigureAwait(false);
+                    var starAlleles = await cpic.GetStarAllelesAsync(gene, cancellationSource.Token).ConfigureAwait(false);
 
-                    pharmacogenomics.Add(new GenePharmacogenomics(gene, rsIds, diplotypes));
+                    pharmacogenomics.Add(new GenePharmacogenomics(gene, rsIds, diplotypes, starAlleles));
                     seed.AddRange(rsIds);
 
                     Console.WriteLine("  " + gene.PadRight(10) +
-                                      rsIds.Count.ToString().PadLeft(4) + " defining positions, " +
-                                      diplotypes.Count.ToString().PadLeft(4) + " diplotypes");
+                                      rsIds.Count.ToString().PadLeft(4) + " positions, " +
+                                      starAlleles.Count.ToString().PadLeft(4) + " star alleles, " +
+                                      diplotypes.Count.ToString().PadLeft(5) + " diplotypes");
                 }
             }
 
@@ -302,12 +304,16 @@ namespace GenomeAnalysis.Harvester
             public GenePharmacogenomics(
                 string gene,
                 IReadOnlyList<string> definingRsIds,
-                IReadOnlyList<CpicDiplotype> diplotypes)
+                IReadOnlyList<CpicDiplotype> diplotypes,
+                IReadOnlyList<CpicStarAllele> starAlleles)
             {
                 Gene = gene;
                 DefiningRsIds = definingRsIds;
                 Diplotypes = diplotypes;
+                StarAlleles = starAlleles;
             }
+
+            public IReadOnlyList<CpicStarAllele> StarAlleles { get; }
 
             public string Gene { get; }
 
@@ -425,6 +431,22 @@ namespace GenomeAnalysis.Harvester
                     ["definingRsIds"] = new JArray(gene.DefiningRsIds),
                     ["definingPositionCount"] = gene.DefiningRsIds.Count,
                     ["alleleFunctions"] = alleleFunctions,
+                    ["starAlleles"] = new JArray(gene.StarAlleles.Select(a =>
+                    {
+                        var definitions = new JObject();
+
+                        foreach (var pair in a.Definitions.OrderBy(p => p.Key, StringComparer.OrdinalIgnoreCase))
+                        {
+                            definitions[pair.Key] = pair.Value.ToString();
+                        }
+
+                        return new JObject
+                        {
+                            ["name"] = a.Name,
+                            ["function"] = a.Function,
+                            ["definitions"] = definitions
+                        };
+                    })),
                     ["phenotypeRules"] = new JArray(ExtractPhenotypeRules(gene.Diplotypes)
                         .Select(r => new JObject
                         {

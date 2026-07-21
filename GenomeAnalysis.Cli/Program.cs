@@ -88,7 +88,11 @@ namespace GenomeAnalysis.Cli
 
                 var rules = RuleLoader.Load(
                     Path.Combine(Path.GetDirectoryName(databasePath) ?? ".", "rules.json"));
-                var ruleResults = new RuleEngine(rules).Evaluate(findings);
+                var ruleResults = new RuleEngine(rules).Evaluate(findings).ToList();
+
+                var pharmacogenes = RuleLoader.LoadPharmacogenes(
+                    Path.Combine(Path.GetDirectoryName(databasePath) ?? ".", "pharmacogenomics.json"));
+                ruleResults.AddRange(new PharmacogenomicsEngine(pharmacogenes).Evaluate(findings));
 
                 PrintReadingSection(reader.Statistics, database);
                 PrintRuleResults(ruleResults);

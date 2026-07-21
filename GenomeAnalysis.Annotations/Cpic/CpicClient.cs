@@ -115,6 +115,83 @@ namespace GenomeAnalysis.Annotations.Cpic
                 .ToList();
         }
 
+        /// <summary>
+        /// The star alleles of a gene, each with the alleles it carries at its
+        /// defining positions, and the function CPIC assigns it.
+        /// </summary>
+        /// <remarks>
+        /// This is what turns genotypes into a diplotype. A star allele is a
+        /// haplotype: <c>*2</c> means specific alleles at specific positions, and a
+        /// position not listed for an allele carries the reference base.
+        /// </remarks>
+        public async Task<IReadOnlyList<CpicStarAllele>> GetStarAllelesAsync(
+            string geneSymbol,
+            CancellationToken cancellationToken = default)
+        {
+            var definitionsJson = await GetAsync(
+                    "allele_definition?genesymbol=eq." + Uri.EscapeDataString(geneSymbol) +
+                    "&select=name,allele_location_value(variantallele,sequence_location(dbsnpid))",
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            var functionsJson = await GetAsync(
+                    "allele?genesymbol=eq." + Uri.EscapeDataString(geneSymbol) +
+                    "&select=name,clinicalfunctionalstatus",
+                    cancellationToken)
+                .ConfigureAwait(false);
+
+            var functions = ParseArray(functionsJson)
+                .Where(o => !string.IsNullOrWhiteSpace(o["name"]?.Value<string>()))
+                .GroupBy(o => o["name"]!.Value<string>()!, StringComparer.OrdinalIgnoreCase)
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.First()["clinicalfunctionalstatus"]?.Value<string>(),
+                    StringComparer.OrdinalIgnoreCase);
+
+            var alleles = new List<CpicStarAllele>();
+
+            foreach (var entry in ParseArray(definitionsJson))
+            {
+                var name = entry["name"]?.Value<string>();
+
+                if (string.IsNullOrWhiteSpace(name))
+                {
+                    continue;
+                }
+
+                var definitions = new Dictionary<string, char>(StringComparer.OrdinalIgnoreCase);
+
+                foreach (var value in (entry["allele_location_value"] as JArray)?.OfType<JObject>()
+                                      ?? Enumerable.Empty<JObject>())
+                {
+                    var rsId = value.SelectToken("sequence_location.dbsnpid")?.Value<string>();
+                    var allele = value["variantallele"]?.Value<string>();
+
+                    // Single-nucleotide definitions only: this tool does not
+                    // interpret the insertions, deletions and gene conversions that
+                    // define some star alleles, and a partial definition would
+                    // produce a confident wrong call.
+                    if (!string.IsNullOrWhiteSpace(rsId) &&
+                        !string.IsNullOrWhiteSpace(allele) &&
+                        allele!.Length == 1 &&
+                        rsId!.StartsWith("rs", StringComparison.OrdinalIgnoreCase))
+                    {
+                        definitions[rsId.Trim().ToLowerInvariant()] = char.ToUpperInvariant(allele[0]);
+                    }
+                }
+
+                if (definitions.Count == 0)
+                {
+                    continue;
+                }
+
+                functions.TryGetValue(name!, out var function);
+                alleles.Add(new CpicStarAllele(name!, function, definitions));
+            }
+
+            return alleles;
+        }
+
         private async Task<string> GetAsync(string relative, CancellationToken cancellationToken)
         {
             var uri = new Uri(_baseUri, relative);
@@ -153,6 +230,26 @@ namespace GenomeAnalysis.Annotations.Cpic
             _disposed = true;
             _http.Dispose();
         }
+    }
+
+    /// <summary>One star allele: what it carries where, and what it does.</summary>
+    public sealed class CpicStarAllele
+    {
+        public CpicStarAllele(string name, string? function, IReadOnlyDictionary<string, char> definitions)
+        {
+            Name = name;
+            Function = function;
+            Definitions = definitions;
+        }
+
+        /// <summary>e.g. <c>*2</c>.</summary>
+        public string Name { get; }
+
+        /// <summary>e.g. "No function". Null when CPIC does not state one.</summary>
+        public string? Function { get; }
+
+        /// <summary>rsID to the allele this star allele carries there.</summary>
+        public IReadOnlyDictionary<string, char> Definitions { get; }
     }
 
     /// <summary>One diplotype and the phenotype CPIC assigns it.</summary>
