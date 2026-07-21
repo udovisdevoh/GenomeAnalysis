@@ -58,8 +58,15 @@ namespace GenomeAnalysis.Harvester
         private static async Task<int> RunAsync(string[] args)
         {
             var repositoryRoot = FindRepositoryRoot();
-            var seedPath = args.Length > 0 ? args[0] : Path.Combine(repositoryRoot, "data", "seed-variants.json");
-            var outputPath = args.Length > 1 ? args[1] : Path.Combine(repositoryRoot, "data", "variant-database.json");
+
+            // --cpic-only rebuilds just the pharmacogenomics tables, which take
+            // seconds, instead of re-querying every variant, which takes twenty
+            // minutes. Useful whenever that file's shape changes.
+            var cpicOnly = args.Any(a => string.Equals(a, "--cpic-only", StringComparison.OrdinalIgnoreCase));
+            var positional = args.Where(a => !a.StartsWith("--", StringComparison.Ordinal)).ToArray();
+
+            var seedPath = positional.Length > 0 ? positional[0] : Path.Combine(repositoryRoot, "data", "seed-variants.json");
+            var outputPath = positional.Length > 1 ? positional[1] : Path.Combine(repositoryRoot, "data", "variant-database.json");
 
             if (!File.Exists(seedPath))
             {
@@ -98,6 +105,18 @@ namespace GenomeAnalysis.Harvester
                                       rsIds.Count.ToString().PadLeft(4) + " defining positions, " +
                                       diplotypes.Count.ToString().PadLeft(4) + " diplotypes");
                 }
+            }
+
+            var pharmacogenomicsPath = Path.Combine(
+                Path.GetDirectoryName(outputPath) ?? ".", "pharmacogenomics.json");
+
+            SavePharmacogenomics(pharmacogenomicsPath, pharmacogenomics);
+
+            if (cpicOnly)
+            {
+                Console.WriteLine();
+                Console.WriteLine("--cpic-only: skipping variant harvest.");
+                return 0;
             }
 
             seed = seed.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
@@ -187,8 +206,6 @@ namespace GenomeAnalysis.Harvester
             };
 
             VariantDatabase.Save(outputPath, merged, sources);
-            SavePharmacogenomics(Path.Combine(Path.GetDirectoryName(outputPath) ?? ".", "pharmacogenomics.json"),
-                pharmacogenomics);
 
             Report(merged, seed, outputPath);
             return 0;
@@ -299,25 +316,123 @@ namespace GenomeAnalysis.Harvester
             public IReadOnlyList<CpicDiplotype> Diplotypes { get; }
         }
 
+        /// <summary>
+        /// Recovers each allele's function from the diplotype table: in a row for
+        /// <c>*1/*17</c>, <c>function1</c> describes <c>*1</c> and <c>function2</c>
+        /// describes <c>*17</c>.
+        /// </summary>
+        private static IReadOnlyDictionary<string, string> ExtractAlleleFunctions(
+            IReadOnlyList<CpicDiplotype> diplotypes)
+        {
+            var functions = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var diplotype in diplotypes)
+            {
+                var parts = diplotype.Diplotype.Split('/');
+
+                if (parts.Length != 2)
+                {
+                    continue;
+                }
+
+                Record(parts[0].Trim(), diplotype.Function1);
+                Record(parts[1].Trim(), diplotype.Function2);
+            }
+
+            return functions;
+
+            void Record(string allele, string? function)
+            {
+                if (string.IsNullOrWhiteSpace(allele) || string.IsNullOrWhiteSpace(function))
+                {
+                    return;
+                }
+
+                if (!functions.ContainsKey(allele))
+                {
+                    functions[allele] = function!;
+                }
+            }
+        }
+
+        /// <summary>
+        /// The distinct function-pair to phenotype rules. Pairs are order-normalised,
+        /// since a diplotype is unordered — there is no phase information that would
+        /// make <c>*1/*4</c> differ from <c>*4/*1</c>.
+        /// </summary>
+        private static IReadOnlyList<(string First, string Second, string Phenotype)> ExtractPhenotypeRules(
+            IReadOnlyList<CpicDiplotype> diplotypes)
+        {
+            var rules = new Dictionary<string, (string, string, string)>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var diplotype in diplotypes)
+            {
+                if (string.IsNullOrWhiteSpace(diplotype.Function1) ||
+                    string.IsNullOrWhiteSpace(diplotype.Function2) ||
+                    string.IsNullOrWhiteSpace(diplotype.Phenotype))
+                {
+                    continue;
+                }
+
+                var first = diplotype.Function1!;
+                var second = diplotype.Function2!;
+
+                if (string.Compare(first, second, StringComparison.OrdinalIgnoreCase) > 0)
+                {
+                    var swap = first;
+                    first = second;
+                    second = swap;
+                }
+
+                var key = first + "|" + second + "|" + diplotype.Phenotype;
+
+                if (!rules.ContainsKey(key))
+                {
+                    rules[key] = (first, second, diplotype.Phenotype!);
+                }
+            }
+
+            return rules.Values
+                .OrderBy(r => r.Item1, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(r => r.Item2, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+        }
+
         private static void SavePharmacogenomics(string path, IReadOnlyList<GenePharmacogenomics> genes)
         {
             var geneObject = new JObject();
 
             foreach (var gene in genes.OrderBy(g => g.Gene, StringComparer.OrdinalIgnoreCase))
             {
+                // Store the rule, not its expansion.
+                //
+                // CPIC publishes every diplotype explicitly, which is the Cartesian
+                // product of a gene's alleles: RYR1 alone yields 60 378 rows. But
+                // those rows encode only two things — what function each allele has,
+                // and what phenotype a pair of functions produces. Keeping those two
+                // tables reconstructs the whole set from 6 rules instead of 60 378
+                // rows, and it is the form the engine can actually reason with.
+                var alleleFunctions = new JObject();
+
+                foreach (var pair in ExtractAlleleFunctions(gene.Diplotypes)
+                             .OrderBy(p => p.Key, StringComparer.OrdinalIgnoreCase))
+                {
+                    alleleFunctions[pair.Key] = pair.Value;
+                }
+
                 geneObject[gene.Gene] = new JObject
                 {
                     ["definingRsIds"] = new JArray(gene.DefiningRsIds),
                     ["definingPositionCount"] = gene.DefiningRsIds.Count,
-                    ["diplotypes"] = new JArray(gene.Diplotypes.Select(d => new JObject
-                    {
-                        ["diplotype"] = d.Diplotype,
-                        ["phenotype"] = d.Phenotype,
-                        ["function1"] = d.Function1,
-                        ["function2"] = d.Function2,
-                        ["activityScore"] = d.ActivityScore,
-                        ["description"] = d.Description
-                    }))
+                    ["alleleFunctions"] = alleleFunctions,
+                    ["phenotypeRules"] = new JArray(ExtractPhenotypeRules(gene.Diplotypes)
+                        .Select(r => new JObject
+                        {
+                            ["function1"] = r.First,
+                            ["function2"] = r.Second,
+                            ["phenotype"] = r.Phenotype
+                        })),
+                    ["diplotypeCount"] = gene.Diplotypes.Count
                 };
             }
 
@@ -326,11 +441,12 @@ namespace GenomeAnalysis.Harvester
                 ["schemaVersion"] = 1,
                 ["generatedAt"] = DateTimeOffset.UtcNow.ToString("O"),
                 ["notice"] =
-                    "Pharmacogenomic reference tables from CPIC (CC0). Diplotype-to-phenotype " +
-                    "mappings for genes CPIC rates level A. A diplotype call requires every " +
-                    "defining position listed here; any missing position makes the result " +
-                    "indeterminate, never approximate. Phenotypes are surfaced as such — this " +
-                    "tool does not restate CPIC's clinical dosing recommendations.",
+                    "Pharmacogenomic reference tables from CPIC (CC0), for genes CPIC rates " +
+                    "level A. Stored as allele functions plus function-pair rules rather than " +
+                    "the full diplotype expansion, which is combinatorial and derivable. " +
+                    "A diplotype call requires every defining position listed here; any missing " +
+                    "position makes the result indeterminate, never approximate. Phenotypes are " +
+                    "surfaced as such — this tool does not restate CPIC's dosing recommendations.",
                 ["source"] = new JObject
                 {
                     ["name"] = "CPIC",
