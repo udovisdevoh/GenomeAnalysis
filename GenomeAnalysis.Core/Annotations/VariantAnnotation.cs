@@ -23,7 +23,8 @@ namespace GenomeAnalysis.Core.Annotations
             double? minorAlleleFrequency = null,
             IReadOnlyCollection<Nucleotide>? knownAlleles = null,
             IReadOnlyList<string>? mergedRsIds = null,
-            string? mostSevereConsequence = null)
+            string? mostSevereConsequence = null,
+            IReadOnlyList<TraitAssociation>? traitAssociations = null)
         {
             if (string.IsNullOrWhiteSpace(rsId))
             {
@@ -42,7 +43,14 @@ namespace GenomeAnalysis.Core.Annotations
             _knownAlleles = knownAlleles;
             MergedRsIds = mergedRsIds ?? new List<string>();
             MostSevereConsequence = mostSevereConsequence;
+            TraitAssociations = traitAssociations ?? new List<TraitAssociation>();
         }
+
+        /// <summary>
+        /// Published trait associations, strongest evidence first. Population-level
+        /// statistics, never a statement about the individual.
+        /// </summary>
+        public IReadOnlyList<TraitAssociation> TraitAssociations { get; }
 
         private readonly IReadOnlyCollection<Nucleotide>? _knownAlleles;
 

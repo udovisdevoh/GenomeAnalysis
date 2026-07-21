@@ -73,7 +73,39 @@ namespace GenomeAnalysis.Core.Annotations
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList(),
                 present.Select(a => a.MostSevereConsequence)
-                    .FirstOrDefault(c => !string.IsNullOrWhiteSpace(c)));
+                    .FirstOrDefault(c => !string.IsNullOrWhiteSpace(c)),
+
+                // Union across sources, deduplicated by trait and publication, then
+                // ordered so the strongest evidence leads.
+                present.SelectMany(a => a.TraitAssociations)
+                    .GroupBy(t => (t.Trait, t.PubMedId), TraitKeyComparer.Instance)
+                    .Select(g => g.First())
+                    .OrderByDescending(t => t.IsGenomeWideSignificant)
+                    .ThenBy(t => t.PValue ?? double.MaxValue)
+                    .ToList());
+        }
+
+        /// <summary>
+        /// Treats trait plus publication as the identity of an association, so the
+        /// same finding arriving from two sources is not counted twice.
+        /// </summary>
+        private sealed class TraitKeyComparer : IEqualityComparer<(string Trait, string? PubMedId)>
+        {
+            public static readonly TraitKeyComparer Instance = new TraitKeyComparer();
+
+            public bool Equals((string Trait, string? PubMedId) x, (string Trait, string? PubMedId) y) =>
+                string.Equals(x.Trait, y.Trait, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(x.PubMedId, y.PubMedId, StringComparison.OrdinalIgnoreCase);
+
+            public int GetHashCode((string Trait, string? PubMedId) key)
+            {
+                unchecked
+                {
+                    var hash = StringComparer.OrdinalIgnoreCase.GetHashCode(key.Trait ?? string.Empty);
+                    return (hash * 397) ^
+                           StringComparer.OrdinalIgnoreCase.GetHashCode(key.PubMedId ?? string.Empty);
+                }
+            }
         }
 
         /// <summary>

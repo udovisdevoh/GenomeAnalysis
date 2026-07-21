@@ -186,7 +186,7 @@ namespace GenomeAnalysis.Tests
           ""sources"": [ { ""name"": ""Ensembl"", ""licence"": ""open data"" } ],
           ""variants"": {
             ""rs1800562"": {
-              ""v"": 2, ""rsId"": ""rs1800562"", ""orientation"": ""Plus"",
+              ""v"": 3, ""rsId"": ""rs1800562"", ""orientation"": ""Plus"",
               ""stabilizedOrientation"": ""Unknown"", ""alleles"": ""G/A"",
               ""mergedRsIds"": [ ""rs111535158"" ], ""gene"": ""HFE"",
               ""attribution"": { ""source"": ""Ensembl"", ""licence"": ""open data"" },

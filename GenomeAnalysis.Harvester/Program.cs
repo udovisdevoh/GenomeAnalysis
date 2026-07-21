@@ -4,11 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using GenomeAnalysis.Annotations.Cpic;
 using GenomeAnalysis.Annotations.Ensembl;
+using GenomeAnalysis.Annotations.Gwas;
 using GenomeAnalysis.Annotations.Local;
 using GenomeAnalysis.Annotations.MyVariant;
 using GenomeAnalysis.Core.Annotations;
 using GenomeAnalysis.Core.Genome;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace GenomeAnalysis.Harvester
@@ -64,11 +67,45 @@ namespace GenomeAnalysis.Harvester
                 return 1;
             }
 
-            var seed = ReadSeedList(seedPath);
+            var seed = ReadSeedList(seedPath).ToList();
             Console.WriteLine("Seed list: " + seed.Count + " variants from " + seedPath);
+
+            var cancellationSource = new CancellationTokenSource();
+
+            // Expand the seed with every position CPIC uses to define a star allele
+            // in an actionable gene. These are the positions a chip has to cover for
+            // a diplotype call to be possible at all, so they belong in the database
+            // whether or not anyone hand-picked them.
+            Console.WriteLine();
+            Console.WriteLine("Expanding seed from CPIC (level A pharmacogenes)...");
+
+            var pharmacogenomics = new List<GenePharmacogenomics>();
+
+            using (var cpic = new CpicClient())
+            {
+                var genes = await cpic.GetActionableGenesAsync(cancellationSource.Token).ConfigureAwait(false);
+                Console.WriteLine("  " + genes.Count + " genes: " + string.Join(", ", genes));
+
+                foreach (var gene in genes)
+                {
+                    var rsIds = await cpic.GetDefiningRsIdsAsync(gene, cancellationSource.Token).ConfigureAwait(false);
+                    var diplotypes = await cpic.GetDiplotypesAsync(gene, cancellationSource.Token).ConfigureAwait(false);
+
+                    pharmacogenomics.Add(new GenePharmacogenomics(gene, rsIds, diplotypes));
+                    seed.AddRange(rsIds);
+
+                    Console.WriteLine("  " + gene.PadRight(10) +
+                                      rsIds.Count.ToString().PadLeft(4) + " defining positions, " +
+                                      diplotypes.Count.ToString().PadLeft(4) + " diplotypes");
+                }
+            }
+
+            seed = seed.Distinct(StringComparer.OrdinalIgnoreCase).ToList();
+            Console.WriteLine();
+            Console.WriteLine("Harvesting " + seed.Count + " variants.");
             Console.WriteLine();
 
-            var cancellation = new CancellationTokenSource();
+            var cancellation = cancellationSource;
             Console.CancelKeyPress += (_, e) =>
             {
                 e.Cancel = true;
@@ -98,6 +135,37 @@ namespace GenomeAnalysis.Harvester
                 Console.WriteLine("  " + results.Count + " of " + seed.Count + " resolved.");
             }
 
+            Console.WriteLine("Querying GWAS Catalog (trait associations, effect sizes, citations)...");
+
+            using (var gwas = new GwasCatalogClient())
+            {
+                var found = 0;
+                var processed = 0;
+
+                foreach (var rsId in seed)
+                {
+                    if (cancellation.Token.IsCancellationRequested)
+                    {
+                        break;
+                    }
+
+                    var annotation = await gwas.GetAsync(rsId, cancellation.Token).ConfigureAwait(false);
+
+                    if (annotation != null)
+                    {
+                        Collect(byRsId, new[] { annotation });
+                        found++;
+                    }
+
+                    if (++processed % 50 == 0)
+                    {
+                        Console.WriteLine("  " + processed + " / " + seed.Count + " checked, " + found + " with associations");
+                    }
+                }
+
+                Console.WriteLine("  " + found + " variants carry published associations.");
+            }
+
             Console.WriteLine();
 
             var merged = byRsId.Values
@@ -111,10 +179,16 @@ namespace GenomeAnalysis.Harvester
                 SourceAttribution.Ensembl(),
                 SourceAttribution.ClinVar(),
                 SourceAttribution.GnomAd(),
-                SourceAttribution.DbSnp()
+                SourceAttribution.DbSnp(),
+                new SourceAttribution("GWAS Catalog (EBI/NHGRI)", "EMBL-EBI terms of use; open data",
+                    "https://www.ebi.ac.uk/about/terms-of-use", "https://www.ebi.ac.uk/gwas/"),
+                new SourceAttribution("CPIC", "CC0", "https://creativecommons.org/publicdomain/zero/1.0/",
+                    "https://cpicpgx.org/")
             };
 
             VariantDatabase.Save(outputPath, merged, sources);
+            SavePharmacogenomics(Path.Combine(Path.GetDirectoryName(outputPath) ?? ".", "pharmacogenomics.json"),
+                pharmacogenomics);
 
             Report(merged, seed, outputPath);
             return 0;
@@ -200,6 +274,75 @@ namespace GenomeAnalysis.Harvester
                                   clinical.Significance.ToString().PadRight(28) +
                                   (clinical.Conditions.FirstOrDefault() ?? ""));
             }
+        }
+
+        /// <summary>
+        /// Everything CPIC knows about one pharmacogene: the positions that define
+        /// its alleles, and what each diplotype implies.
+        /// </summary>
+        private sealed class GenePharmacogenomics
+        {
+            public GenePharmacogenomics(
+                string gene,
+                IReadOnlyList<string> definingRsIds,
+                IReadOnlyList<CpicDiplotype> diplotypes)
+            {
+                Gene = gene;
+                DefiningRsIds = definingRsIds;
+                Diplotypes = diplotypes;
+            }
+
+            public string Gene { get; }
+
+            public IReadOnlyList<string> DefiningRsIds { get; }
+
+            public IReadOnlyList<CpicDiplotype> Diplotypes { get; }
+        }
+
+        private static void SavePharmacogenomics(string path, IReadOnlyList<GenePharmacogenomics> genes)
+        {
+            var geneObject = new JObject();
+
+            foreach (var gene in genes.OrderBy(g => g.Gene, StringComparer.OrdinalIgnoreCase))
+            {
+                geneObject[gene.Gene] = new JObject
+                {
+                    ["definingRsIds"] = new JArray(gene.DefiningRsIds),
+                    ["definingPositionCount"] = gene.DefiningRsIds.Count,
+                    ["diplotypes"] = new JArray(gene.Diplotypes.Select(d => new JObject
+                    {
+                        ["diplotype"] = d.Diplotype,
+                        ["phenotype"] = d.Phenotype,
+                        ["function1"] = d.Function1,
+                        ["function2"] = d.Function2,
+                        ["activityScore"] = d.ActivityScore,
+                        ["description"] = d.Description
+                    }))
+                };
+            }
+
+            var root = new JObject
+            {
+                ["schemaVersion"] = 1,
+                ["generatedAt"] = DateTimeOffset.UtcNow.ToString("O"),
+                ["notice"] =
+                    "Pharmacogenomic reference tables from CPIC (CC0). Diplotype-to-phenotype " +
+                    "mappings for genes CPIC rates level A. A diplotype call requires every " +
+                    "defining position listed here; any missing position makes the result " +
+                    "indeterminate, never approximate. Phenotypes are surfaced as such — this " +
+                    "tool does not restate CPIC's clinical dosing recommendations.",
+                ["source"] = new JObject
+                {
+                    ["name"] = "CPIC",
+                    ["licence"] = "CC0",
+                    ["url"] = "https://cpicpgx.org/"
+                },
+                ["geneCount"] = geneObject.Count,
+                ["genes"] = geneObject
+            };
+
+            File.WriteAllText(path, root.ToString(Formatting.Indented), new System.Text.UTF8Encoding(false));
+            Console.WriteLine("Wrote " + geneObject.Count + " pharmacogenes to " + path);
         }
 
         private static IReadOnlyList<string> ReadSeedList(string path)

@@ -18,7 +18,7 @@ namespace GenomeAnalysis.Annotations.Cache
     public static class AnnotationSerializer
     {
         /// <summary>Bumped when the payload shape changes, to invalidate stale rows.</summary>
-        public const int SchemaVersion = 2;
+        public const int SchemaVersion = 3;
 
         public static string ToJson(VariantAnnotation annotation)
         {
@@ -40,7 +40,8 @@ namespace GenomeAnalysis.Annotations.Cache
                 ["mergedRsIds"] = new JArray(annotation.MergedRsIds),
                 ["consequence"] = annotation.MostSevereConsequence,
                 ["attribution"] = AttributionToJson(annotation.Attribution),
-                ["genotypes"] = new JArray(annotation.Genotypes.Select(GenotypeToJson))
+                ["genotypes"] = new JArray(annotation.Genotypes.Select(GenotypeToJson)),
+                ["traits"] = new JArray(annotation.TraitAssociations.Select(TraitToJson))
             };
 
             if (annotation.Clinical != null)
@@ -111,7 +112,12 @@ namespace GenomeAnalysis.Annotations.Cache
                     .Where(s => !string.IsNullOrWhiteSpace(s))
                     .Select(s => s!)
                     .ToList(),
-                payload["consequence"]?.Value<string>());
+                payload["consequence"]?.Value<string>(),
+                (payload["traits"] as JArray)?.OfType<JObject>()
+                    .Select(TraitFromJson)
+                    .Where(t => t != null)
+                    .Select(t => t!)
+                    .ToList());
         }
 
         private static JObject GenotypeToJson(GenotypeAnnotation genotype) => new JObject
@@ -143,6 +149,49 @@ namespace GenomeAnalysis.Annotations.Cache
                 json["magnitude"]?.Value<double?>(),
                 ParseEnum(json["repute"]?.Value<string>(), Repute.NotStated),
                 attribution);
+        }
+
+        private static JObject TraitToJson(TraitAssociation trait) => new JObject
+        {
+            ["trait"] = trait.Trait,
+            ["traitUri"] = trait.TraitUri,
+            ["oddsRatio"] = trait.OddsRatio,
+            ["beta"] = trait.Beta,
+            ["betaUnit"] = trait.BetaUnit,
+            ["pValue"] = trait.PValue,
+            ["riskAllele"] = trait.RiskAllele,
+            ["pubMedId"] = trait.PubMedId,
+            ["sampleSize"] = trait.SampleSize,
+            ["attribution"] = AttributionToJson(trait.Attribution)
+        };
+
+        private static TraitAssociation? TraitFromJson(JObject json)
+        {
+            var trait = json["trait"]?.Value<string>();
+
+            if (string.IsNullOrWhiteSpace(trait))
+            {
+                return null;
+            }
+
+            var attribution = AttributionFromJson(json["attribution"] as JObject);
+
+            if (attribution == null)
+            {
+                return null;
+            }
+
+            return new TraitAssociation(
+                trait!,
+                json["oddsRatio"]?.Value<double?>(),
+                json["beta"]?.Value<double?>(),
+                json["betaUnit"]?.Value<string>(),
+                json["pValue"]?.Value<double?>(),
+                json["riskAllele"]?.Value<string>(),
+                json["pubMedId"]?.Value<string>(),
+                json["sampleSize"]?.Value<int?>(),
+                attribution,
+                json["traitUri"]?.Value<string>());
         }
 
         private static JObject ClinicalToJson(ClinicalAnnotation clinical) => new JObject
