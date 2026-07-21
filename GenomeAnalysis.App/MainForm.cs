@@ -39,7 +39,12 @@ namespace GenomeAnalysis.App
         private readonly ToolStripStatusLabel _status;
         private readonly ProgressBar _progress;
 
+        private readonly ListView _rulesList;
+        private readonly TextBox _ruleDetailBox;
+
         private VariantDatabase? _database;
+        private IReadOnlyList<GenomeAnalysis.Core.Rules.RuleDefinition> _rules =
+            new List<GenomeAnalysis.Core.Rules.RuleDefinition>();
         private IReadOnlyList<Finding> _findings = new List<Finding>();
 
         public MainForm()
@@ -134,7 +139,35 @@ namespace GenomeAnalysis.App
             findingsSplit.Panel1.Controls.Add(_findingsList);
             findingsSplit.Panel2.Controls.Add(_detailBox);
 
+            _rulesList = CreateListView(
+                ("Combinaison", 240), ("Gène", 90), ("Résultat", 340), ("Statut", 150));
+            _rulesList.SelectedIndexChanged += (_, __) => ShowRuleDetail();
+
+            _ruleDetailBox = new TextBox
+            {
+                Multiline = true,
+                ReadOnly = true,
+                ScrollBars = ScrollBars.Vertical,
+                Dock = DockStyle.Fill,
+                BackColor = Color.White,
+                Font = new Font("Consolas", 9F),
+                BorderStyle = BorderStyle.None
+            };
+
+            var rulesSplit = new SplitContainer
+            {
+                Dock = DockStyle.Fill,
+                Orientation = Orientation.Horizontal,
+                SplitterDistance = 240
+            };
+            rulesSplit.Panel1.Controls.Add(_rulesList);
+            rulesSplit.Panel2.Controls.Add(_ruleDetailBox);
+
             _tabs = new TabControl { Dock = DockStyle.Fill };
+
+            // Combinations first: a multi-marker conclusion usually carries more
+            // meaning than any of the single markers it rests on.
+            _tabs.TabPages.Add(CreateTab("Combinaisons", rulesSplit));
             _tabs.TabPages.Add(CreateTab("Résultats", findingsSplit));
             _tabs.TabPages.Add(CreateTab("Indéterminés", _indeterminateList));
             _tabs.TabPages.Add(CreateTab("Positions sans variant", _referenceList));
@@ -222,8 +255,11 @@ namespace GenomeAnalysis.App
                 return;
             }
 
+            _rules = RuleLoader.Load(Path.Combine(FindRepositoryRoot(), "data", "rules.json"));
+
             _databaseLabel.Text =
-                "Base locale : " + _database.Count.ToString("N0") + " variants" +
+                "Base locale : " + _database.Count.ToString("N0") + " variants, " +
+                _rules.Count + " règles multi-marqueurs" +
                 (_database.GeneratedAt.HasValue
                     ? ", générée le " + _database.GeneratedAt.Value.ToString("yyyy-MM-dd")
                     : string.Empty) +
@@ -260,6 +296,7 @@ namespace GenomeAnalysis.App
                 var result = await Task.Run(() => Analyze(path)).ConfigureAwait(true);
 
                 _findings = result.Findings;
+                PopulateRules(result.RuleResults);
                 PopulateFindings();
                 PopulateIndeterminate();
                 PopulateReference();
@@ -300,8 +337,120 @@ namespace GenomeAnalysis.App
                     reader.Header,
                     reader.Statistics,
                     findings,
-                    new AnalysisSummary(findings));
+                    new AnalysisSummary(findings),
+                    new GenomeAnalysis.Core.Rules.RuleEngine(_rules).Evaluate(findings));
             }
+        }
+
+        private void PopulateRules(IReadOnlyList<GenomeAnalysis.Core.Rules.RuleResult> results)
+        {
+            _rulesList.BeginUpdate();
+            _rulesList.Items.Clear();
+
+            foreach (var result in results.Where(r =>
+                         r.Outcome != GenomeAnalysis.Core.Rules.RuleOutcome.NotApplicable))
+            {
+                var item = new ListViewItem(result.RuleName) { Tag = result };
+                item.SubItems.Add(result.Gene ?? "—");
+
+                item.SubItems.Add(result.Outcome == GenomeAnalysis.Core.Rules.RuleOutcome.Determinate
+                    ? result.Conclusion ?? "—"
+                    : result.Candidates.Count > 0
+                        ? string.Join("  ou  ", result.Candidates)
+                        : "—");
+
+                item.SubItems.Add(result.Outcome == GenomeAnalysis.Core.Rules.RuleOutcome.Determinate
+                    ? (result.PhaseLimited ? "limité par la phase" : "déterminé")
+                    : "indéterminé");
+
+                if (result.Outcome != GenomeAnalysis.Core.Rules.RuleOutcome.Determinate || result.PhaseLimited)
+                {
+                    item.ForeColor = MutedColour;
+                }
+
+                _rulesList.Items.Add(item);
+            }
+
+            _rulesList.EndUpdate();
+
+            if (_rulesList.Items.Count > 0)
+            {
+                _rulesList.Items[0].Selected = true;
+            }
+            else
+            {
+                _ruleDetailBox.Text =
+                    "Aucune règle multi-marqueurs n'a pu être évaluée : les positions qu'elles " +
+                    "requièrent sont absentes de ce fichier.";
+            }
+        }
+
+        private void ShowRuleDetail()
+        {
+            if (_rulesList.SelectedItems.Count == 0 ||
+                !(_rulesList.SelectedItems[0].Tag is GenomeAnalysis.Core.Rules.RuleResult result))
+            {
+                return;
+            }
+
+            var text = new System.Text.StringBuilder();
+
+            text.AppendLine(result.RuleName +
+                            (result.Gene == null ? string.Empty : "   ·   gène " + result.Gene));
+            text.AppendLine("Positions utilisées : " + string.Join(", ", result.UsedMarkers));
+            text.AppendLine();
+
+            if (result.Outcome == GenomeAnalysis.Core.Rules.RuleOutcome.Determinate)
+            {
+                text.AppendLine("RÉSULTAT");
+                text.AppendLine("  " + result.Conclusion);
+                text.AppendLine();
+            }
+            else
+            {
+                text.AppendLine("INDÉTERMINÉ");
+
+                if (result.Candidates.Count > 0)
+                {
+                    text.AppendLine("  Les données sont compatibles avec plusieurs réponses :");
+
+                    foreach (var candidate in result.Candidates)
+                    {
+                        text.AppendLine("    · " + candidate);
+                    }
+
+                    text.AppendLine();
+                    text.AppendLine("  Aucune n'est retenue : en choisir une serait une supposition.");
+                }
+
+                if (result.MissingMarkers.Count > 0)
+                {
+                    text.AppendLine("  Positions manquantes : " + string.Join(", ", result.MissingMarkers));
+                }
+
+                text.AppendLine();
+            }
+
+            text.AppendLine("POURQUOI");
+            text.AppendLine("  " + result.Reason);
+            text.AppendLine();
+
+            if (result.PhaseLimited)
+            {
+                text.AppendLine("⚠ LIMITE DE PHASE");
+                text.AppendLine("  Une puce ne dit pas quels allèles siègent sur la même copie du chromosome.");
+                text.AppendLine("  Ce résultat se formule donc au conditionnel — « compatible avec » — et");
+                text.AppendLine("  jamais comme un fait établi.");
+                text.AppendLine();
+            }
+
+            if (!string.IsNullOrWhiteSpace(result.Interpretation))
+            {
+                text.AppendLine("NOTE");
+                text.AppendLine("  " + result.Interpretation);
+            }
+
+            _ruleDetailBox.Text = text.ToString();
         }
 
         private void PopulateFindings()
@@ -653,13 +802,17 @@ namespace GenomeAnalysis.App
                 GenomeFileHeader header,
                 ParseStatistics statistics,
                 IReadOnlyList<Finding> findings,
-                AnalysisSummary summary)
+                AnalysisSummary summary,
+                IReadOnlyList<GenomeAnalysis.Core.Rules.RuleResult> ruleResults)
             {
                 Header = header;
                 Statistics = statistics;
                 Findings = findings;
                 Summary = summary;
+                RuleResults = ruleResults;
             }
+
+            public IReadOnlyList<GenomeAnalysis.Core.Rules.RuleResult> RuleResults { get; }
 
             public GenomeFileHeader Header { get; }
 

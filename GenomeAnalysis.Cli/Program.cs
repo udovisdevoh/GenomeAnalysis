@@ -7,6 +7,7 @@ using GenomeAnalysis.Core.Analysis;
 using GenomeAnalysis.Core.Annotations;
 using GenomeAnalysis.Core.Genome;
 using GenomeAnalysis.Core.Parsing;
+using GenomeAnalysis.Core.Rules;
 
 namespace GenomeAnalysis.Cli
 {
@@ -85,7 +86,12 @@ namespace GenomeAnalysis.Cli
                 var findings = GenomeAnalyzer.Prioritise(analyzer.Analyze(reader.ReadCalls()));
                 var summary = new AnalysisSummary(findings);
 
+                var rules = RuleLoader.Load(
+                    Path.Combine(Path.GetDirectoryName(databasePath) ?? ".", "rules.json"));
+                var ruleResults = new RuleEngine(rules).Evaluate(findings);
+
                 PrintReadingSection(reader.Statistics, database);
+                PrintRuleResults(ruleResults);
                 PrintFindings(findings);
                 PrintIndeterminate(findings);
                 PrintSummary(summary);
@@ -132,6 +138,66 @@ namespace GenomeAnalysis.Cli
             if (statistics.MalformedRows > 0)
             {
                 Console.WriteLine("  Lignes illisibles        : " + statistics.MalformedRows);
+            }
+        }
+
+        /// <summary>
+        /// Multi-marker conclusions, printed before the per-marker list because a
+        /// combination usually carries more meaning than any of its parts.
+        /// </summary>
+        private static void PrintRuleResults(IReadOnlyList<RuleResult> results)
+        {
+            var applicable = results.Where(r => r.Outcome != RuleOutcome.NotApplicable).ToList();
+
+            if (applicable.Count == 0)
+            {
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("═══ COMBINAISONS DE MARQUEURS ═══");
+            Console.WriteLine();
+            Console.WriteLine("  Ces résultats reposent sur plusieurs positions à la fois : aucune d'elles");
+            Console.WriteLine("  ne porte l'information seule.");
+
+            foreach (var result in applicable)
+            {
+                Console.WriteLine();
+                Console.WriteLine("  ──────────────────────────────────────────────────────────────");
+                Console.Write("  " + result.RuleName);
+
+                if (!string.IsNullOrWhiteSpace(result.Gene))
+                {
+                    Console.Write("  [" + result.Gene + "]");
+                }
+
+                Console.WriteLine();
+
+                if (result.Outcome == RuleOutcome.Determinate)
+                {
+                    Console.WriteLine("    Résultat       : " + result.Conclusion);
+
+                    if (result.PhaseLimited)
+                    {
+                        Console.WriteLine("    ⚠ Limite de phase — formulation au conditionnel obligatoire");
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("    Résultat       : INDÉTERMINÉ");
+
+                    if (result.Candidates.Count > 0)
+                    {
+                        Console.WriteLine("    Compatible avec: " + string.Join("  ou  ", result.Candidates));
+                    }
+                }
+
+                Console.WriteLine("    " + Wrap("Pourquoi : " + result.Reason, 4));
+
+                if (!string.IsNullOrWhiteSpace(result.Interpretation))
+                {
+                    Console.WriteLine("    " + Wrap("Note : " + result.Interpretation, 4));
+                }
             }
         }
 

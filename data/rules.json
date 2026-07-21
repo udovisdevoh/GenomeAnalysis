@@ -1,0 +1,53 @@
+{
+  "description": "Declarative multi-marker rules. Data, not compiled code: adding a gene means editing this file, the engine does not change. Alleles are written on the strand the annotation source reports, since genotypes are strand-resolved before a rule sees them.",
+  "schemaVersion": 1,
+  "rules": [
+    {
+      "id": "apoe-diplotype",
+      "name": "Génotype APOE",
+      "kind": "haplotype",
+      "gene": "APOE",
+      "requiredMarkers": ["rs429358", "rs7412"],
+      "note": "Les allèles ε se déduisent de la combinaison des deux positions ; aucune ne porte l'information seule.",
+      "haplotypes": [
+        { "name": "ε1", "alleles": { "rs429358": "C", "rs7412": "T" } },
+        { "name": "ε2", "alleles": { "rs429358": "T", "rs7412": "T" } },
+        { "name": "ε3", "alleles": { "rs429358": "T", "rs7412": "C" } },
+        { "name": "ε4", "alleles": { "rs429358": "C", "rs7412": "C" } }
+      ],
+      "interpretations": {
+        "ε2/ε2": "Diplotype rare. L'allèle ε2 est associé à un taux de cholestérol LDL plus bas ; l'homozygotie ε2/ε2 est un facteur nécessaire mais non suffisant de l'hyperlipoprotéinémie de type III, que la grande majorité des porteurs ne développent jamais.",
+        "ε2/ε3": "Diplotype relativement fréquent. L'allèle ε2 est généralement associé à un taux de LDL plus bas que ε3.",
+        "ε2/ε4": "Un allèle de chaque effet opposé. Les études d'association situent ce diplotype près du niveau de référence ε3/ε3.",
+        "ε3/ε3": "Diplotype le plus fréquent, servant de référence dans la plupart des études d'association.",
+        "ε3/ε4": "Une copie de ε4. Les études d'association rapportent un risque accru de maladie d'Alzheimer tardive par rapport à ε3/ε3. Il s'agit d'un facteur de susceptibilité statistique, non d'une détermination : beaucoup de porteurs ne développent jamais la maladie, et beaucoup de non-porteurs la développent.",
+        "ε4/ε4": "Deux copies de ε4. Les études d'association rapportent le risque relatif le plus élevé de maladie d'Alzheimer tardive. Ce résultat reste probabiliste et non diagnostique ; il relève typiquement d'un conseil génétique professionnel, d'autant qu'il concerne une affection sans traitement préventif établi.",
+        "ε1/ε3": "L'allèle ε1 est très rare. Une correspondance apparente mérite confirmation avant toute interprétation."
+      }
+    },
+    {
+      "id": "hfe-hemochromatosis",
+      "name": "Variants HFE (hémochromatose)",
+      "kind": "compoundHeterozygosity",
+      "gene": "HFE",
+      "requiredMarkers": ["rs1800562", "rs1799945"],
+      "note": "La pénétrance est faible : une part importante des porteurs, y compris homozygotes C282Y, ne développe jamais de surcharge en fer cliniquement significative. Un bilan martial (ferritine, coefficient de saturation de la transferrine) tranche mieux que la génétique seule.",
+      "variants": [
+        { "rsId": "rs1800562", "riskAllele": "A", "label": "C282Y" },
+        { "rsId": "rs1799945", "riskAllele": "G", "label": "H63D" }
+      ]
+    },
+    {
+      "id": "mthfr-variants",
+      "name": "Variants MTHFR",
+      "kind": "compoundHeterozygosity",
+      "gene": "MTHFR",
+      "requiredMarkers": ["rs1801133", "rs1801131"],
+      "note": "Ces variants sont fréquents en population générale et leur portée clinique est très limitée. Plusieurs sociétés savantes de génétique médicale déconseillent explicitement leur dépistage en routine. Ils figurent ici parce qu'ils sont souvent surinterprétés, et pour que le rapport puisse le dire.",
+      "variants": [
+        { "rsId": "rs1801133", "riskAllele": "A", "label": "C677T" },
+        { "rsId": "rs1801131", "riskAllele": "G", "label": "A1298C" }
+      ]
+    }
+  ]
+}

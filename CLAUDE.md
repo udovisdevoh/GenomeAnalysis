@@ -196,7 +196,11 @@ The report must not be a flat one-SNP-per-row list. Most useful interpretations 
 
 ### Multi-marker rules
 
-The engine works from declarative rules (data, not compiled code), each declaring the markers it depends on and how they combine. Real cases to support:
+**Implemented.** `Core/Rules/RuleEngine.cs` evaluates rules loaded from `data/rules.json` — data, not compiled code, so adding a gene means editing that file. It runs after per-marker analysis and consumes its findings, which means the genotypes it sees are already strand-resolved. A finding that failed strand resolution is treated as a missing marker rather than used as though it had resolved.
+
+Two rule kinds exist so far. `haplotype` derives a diplotype by enumerating every pair of defined haplotypes consistent with the observed genotypes; `compoundHeterozygosity` reports whether two impairing variants in one gene are both present. Star alleles and polygenic scores are not implemented — the CPIC tables in `data/pharmacogenomics.json` are harvested but nothing consumes them yet.
+
+The engine works from declarative rules, each declaring the markers it depends on and how they combine. Real cases to support:
 
 - **Compound haplotypes** — APOE is the canonical example: the ε2/ε3/ε4 alleles are derived from the combination of `rs429358` and `rs7412`. Neither SNP alone carries the information.
 - **Compound heterozygosity** — two different pathogenic variants in the same gene, e.g. HFE `rs1800562` (C282Y) and `rs1799945` (H63D) for hemochromatosis.
@@ -208,6 +212,8 @@ The engine works from declarative rules (data, not compiled code), each declarin
 These are properties of array data, not implementation shortcomings. Treat them as first-class cases:
 
 - **Array data is unphased.** There is no way to know whether two variants sit on the same chromosome copy or on opposite copies. True compound heterozygosity (in *trans*, both copies affected) is therefore **indistinguishable** from two variants in *cis* (one intact copy). The report must say "consistent with", never "confirmed".
+
+  APOE shows the same limit inside a single rule: a heterozygote at both `rs429358` and `rs7412` is consistent with **ε1/ε3 and with ε2/ε4**, and nothing in unphased data separates them. Those two readings carry near-opposite meanings, so the engine returns both candidates and no conclusion. Picking one would be worse than answering nothing.
 - **Required marker missing.** If a rule needs five positions and the chip covers three, the result is **indeterminate** — never an assumption about the missing positions.
 - **Do not naively multiply odds ratios.** Published ORs assume independence and come from different populations; composing them mechanically overstates the result.
 
