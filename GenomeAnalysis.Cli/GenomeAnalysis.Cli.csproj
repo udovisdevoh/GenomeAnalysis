@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>GenomeAnalysis.Cli</RootNamespace>
+    <AssemblyName>GenomeAnalysis.Cli</AssemblyName>
+    <Description>Reads a raw DNA file and reports what the local variant database knows about it.</Description>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GenomeAnalysis.Core\GenomeAnalysis.Core.csproj" />
+    <ProjectReference Include="..\GenomeAnalysis.Annotations\GenomeAnalysis.Annotations.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+</Project>

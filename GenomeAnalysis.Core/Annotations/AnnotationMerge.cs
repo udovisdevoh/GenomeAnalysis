@@ -82,7 +82,10 @@ namespace GenomeAnalysis.Core.Annotations
                     .Select(g => g.First())
                     .OrderByDescending(t => t.IsGenomeWideSignificant)
                     .ThenBy(t => t.PValue ?? double.MaxValue)
-                    .ToList());
+                    .ToList(),
+
+                // Whichever source states it; sources that do not simply pass null.
+                present.Select(a => a.ReferenceAllele).FirstOrDefault(r => r.HasValue));
         }
 
         /// <summary>

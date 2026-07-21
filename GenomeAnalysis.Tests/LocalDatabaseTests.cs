@@ -180,13 +180,16 @@ namespace GenomeAnalysis.Tests
 
     public class VariantDatabaseTests
     {
-        private const string DatabaseJson = @"{
+        // Tracks the serializer's own version rather than hardcoding it: the schema
+        // guard is meant to reject stale payloads, not to break this fixture every
+        // time a field is added.
+        private static readonly string DatabaseJson = @"{
           ""schemaVersion"": 1,
           ""generatedAt"": ""2026-07-20T00:00:00+00:00"",
           ""sources"": [ { ""name"": ""Ensembl"", ""licence"": ""open data"" } ],
           ""variants"": {
             ""rs1800562"": {
-              ""v"": 3, ""rsId"": ""rs1800562"", ""orientation"": ""Plus"",
+              ""v"": " + GenomeAnalysis.Annotations.Cache.AnnotationSerializer.SchemaVersion + @", ""rsId"": ""rs1800562"", ""orientation"": ""Plus"",
               ""stabilizedOrientation"": ""Unknown"", ""alleles"": ""G/A"",
               ""mergedRsIds"": [ ""rs111535158"" ], ""gene"": ""HFE"",
               ""attribution"": { ""source"": ""Ensembl"", ""licence"": ""open data"" },

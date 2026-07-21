@@ -15,6 +15,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <!-- Synthetic fixtures only. A real genome file must never enter this repo,
+         including the developer's own. -->
+    <None Include="Fixtures\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\GenomeAnalysis.Core\GenomeAnalysis.Core.csproj" />
     <ProjectReference Include="..\GenomeAnalysis.Annotations\GenomeAnalysis.Annotations.csproj" />
   </ItemGroup>

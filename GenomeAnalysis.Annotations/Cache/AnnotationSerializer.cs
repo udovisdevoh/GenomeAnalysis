@@ -18,7 +18,7 @@ namespace GenomeAnalysis.Annotations.Cache
     public static class AnnotationSerializer
     {
         /// <summary>Bumped when the payload shape changes, to invalidate stale rows.</summary>
-        public const int SchemaVersion = 3;
+        public const int SchemaVersion = 4;
 
         public static string ToJson(VariantAnnotation annotation)
         {
@@ -39,6 +39,7 @@ namespace GenomeAnalysis.Annotations.Cache
                 ["alleles"] = string.Join("/", annotation.KnownAlleles.Select(a => a.ToChar())),
                 ["mergedRsIds"] = new JArray(annotation.MergedRsIds),
                 ["consequence"] = annotation.MostSevereConsequence,
+                ["referenceAllele"] = annotation.ReferenceAllele?.ToChar().ToString(),
                 ["attribution"] = AttributionToJson(annotation.Attribution),
                 ["genotypes"] = new JArray(annotation.Genotypes.Select(GenotypeToJson)),
                 ["traits"] = new JArray(annotation.TraitAssociations.Select(TraitToJson))
@@ -117,7 +118,8 @@ namespace GenomeAnalysis.Annotations.Cache
                     .Select(TraitFromJson)
                     .Where(t => t != null)
                     .Select(t => t!)
-                    .ToList());
+                    .ToList(),
+                ParseReferenceAllele(payload["referenceAllele"]?.Value<string>()));
         }
 
         private static JObject GenotypeToJson(GenotypeAnnotation genotype) => new JObject
@@ -283,6 +285,16 @@ namespace GenomeAnalysis.Annotations.Cache
             }
 
             return alleles.Distinct().ToList();
+        }
+
+        private static Nucleotide? ParseReferenceAllele(string? value)
+        {
+            if (string.IsNullOrWhiteSpace(value) || value!.Length != 1)
+            {
+                return null;
+            }
+
+            return NucleotideExtensions.TryParse(value[0], out var nucleotide) ? nucleotide : (Nucleotide?)null;
         }
 
         private static Strand ParseStrand(string? value) => ParseEnum(value, Strand.Unknown);

@@ -24,7 +24,8 @@ namespace GenomeAnalysis.Core.Annotations
             IReadOnlyCollection<Nucleotide>? knownAlleles = null,
             IReadOnlyList<string>? mergedRsIds = null,
             string? mostSevereConsequence = null,
-            IReadOnlyList<TraitAssociation>? traitAssociations = null)
+            IReadOnlyList<TraitAssociation>? traitAssociations = null,
+            Nucleotide? referenceAllele = null)
         {
             if (string.IsNullOrWhiteSpace(rsId))
             {
@@ -44,6 +45,39 @@ namespace GenomeAnalysis.Core.Annotations
             MergedRsIds = mergedRsIds ?? new List<string>();
             MostSevereConsequence = mostSevereConsequence;
             TraitAssociations = traitAssociations ?? new List<TraitAssociation>();
+            ReferenceAllele = referenceAllele;
+        }
+
+        /// <summary>
+        /// The reference allele in the current build, where the source states it.
+        /// </summary>
+        /// <remarks>
+        /// This decides whether a clinical classification applies to the person at
+        /// all. ClinVar classifies the <em>variant</em> — that is, the alternate
+        /// allele — so a genotype carrying only the reference allele does not carry
+        /// the finding. Without this, a normal result gets reported with the
+        /// variant's classification, and prothrombin G20210A reads as "pathogenic"
+        /// for someone whose genotype is plain GG.
+        /// </remarks>
+        public Nucleotide? ReferenceAllele { get; }
+
+        /// <summary>
+        /// Whether <paramref name="genotype"/> carries any non-reference allele —
+        /// that is, whether this person actually carries the variant.
+        /// </summary>
+        /// <remarks>
+        /// Returns <c>null</c> when the reference allele is unknown, so callers can
+        /// tell "does not carry it" apart from "cannot tell". The two must not be
+        /// presented the same way.
+        /// </remarks>
+        public bool? CarriesVariant(Genotype genotype)
+        {
+            if (!ReferenceAllele.HasValue)
+            {
+                return null;
+            }
+
+            return genotype.Alleles.Any(a => a != ReferenceAllele.Value);
         }
 
         /// <summary>

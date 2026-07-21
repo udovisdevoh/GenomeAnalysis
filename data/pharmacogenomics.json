@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-07-21T16:06:03.3962418+00:00",
+  "generatedAt": "2026-07-21T18:38:16.9411482+00:00",
   "notice": "Pharmacogenomic reference tables from CPIC (CC0), for genes CPIC rates level A. Stored as allele functions plus function-pair rules rather than the full diplotype expansion, which is combinatorial and derivable. A diplotype call requires every defining position listed here; any missing position makes the result indeterminate, never approximate. Phenotypes are surfaced as such — this tool does not restate CPIC's dosing recommendations.",
   "source": {
     "name": "CPIC",

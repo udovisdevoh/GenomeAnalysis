@@ -171,7 +171,11 @@ namespace GenomeAnalysis.Annotations.Ensembl
                 minorAlleleFrequency: entry["MAF"]?.Value<double?>(),
                 knownAlleles: alleles,
                 mergedRsIds: ExtractMergedRsIds(entry["synonyms"] as JArray, name),
-                mostSevereConsequence: entry["most_severe_consequence"]?.Value<string>());
+                mostSevereConsequence: entry["most_severe_consequence"]?.Value<string>(),
+                traitAssociations: null,
+                // Ensembl writes allele_string reference-first ("G/A"), which is what
+                // tells a carrier apart from someone with the ordinary genotype.
+                referenceAllele: alleles.Count > 0 ? alleles.First() : (Nucleotide?)null);
         }
 
         /// <summary>

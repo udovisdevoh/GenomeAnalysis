@@ -201,6 +201,9 @@ Every claim displayed must be traceable to a cited source. If an LLM is ever use
 
 The tool displays disease associations. These rules govern *how*, and are not negotiable.
 
+- **A classification describes the variant, not the person.** ClinVar classifies the alternate allele. Someone homozygous for the reference allele does not carry the finding, and attaching the variant's classification to their result is a false alarm — prothrombin G20210A reported as "pathogenic" for a plain `GG` genotype. Compare the genotype against `VariantAnnotation.ReferenceAllele` before showing anything clinical. Where the reference allele is unknown, say so: `Finding.CarriesVariant` returns `null`, and "cannot tell" must never be rendered as "does not carry it".
+- **Report the reference genotypes too.** "This position was examined and carries the ordinary allele" is a different statement from "this position was never looked at", and a reader cannot tell them apart unless both are shown.
+
 - **Raw array data is not clinical grade.** A reference study (Tandy-Connor et al., *Genetics in Medicine*, 2018) found roughly 40% of variants reported in raw consumer data were false positives on confirmation in an accredited laboratory. Any high-impact finding must be presented as **requiring confirmatory clinical testing**.
 - **Absence of a finding is not absence of risk.** An array interrogates fixed, predefined positions. 23andMe's BRCA test, for instance, covers three Ashkenazi founder variants out of thousands known. Never phrase as "no risk detected"; phrase as "none of the N tested positions carries a known variant".
 - **Scale presentation to impact.** A caffeine metabolism SNP and a Huntington or BRCA variant do not get the same treatment. High-impact or actionable findings must explicitly recommend professional genetic counselling.
