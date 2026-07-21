@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>GenomeAnalysis.App</RootNamespace>
+    <AssemblyName>GenomeAnalysis</AssemblyName>
+    <Description>Desktop interface for reading and interpreting a raw DNA file, entirely offline.</Description>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GenomeAnalysis.Core\GenomeAnalysis.Core.csproj" />
+    <ProjectReference Include="..\GenomeAnalysis.Annotations\GenomeAnalysis.Annotations.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+</Project>

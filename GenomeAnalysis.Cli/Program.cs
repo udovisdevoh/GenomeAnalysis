@@ -63,7 +63,17 @@ namespace GenomeAnalysis.Cli
 
             if (database.Count == 0)
             {
-                Console.Error.WriteLine("La base de variants est vide ou illisible.");
+                // Distinguish the causes: "empty or unreadable" leaves the user with
+                // nothing to act on, and a schema bump is the likeliest reason.
+                Console.Error.WriteLine("La base de variants n'a pu être chargée : " + databasePath);
+                Console.Error.WriteLine();
+                Console.Error.WriteLine("Cause probable : le fichier a été écrit par une version antérieure du");
+                Console.Error.WriteLine("format (schéma attendu : v" +
+                                        GenomeAnalysis.Annotations.Cache.AnnotationSerializer.SchemaVersion + ").");
+                Console.Error.WriteLine("Les enregistrements d'un schéma incompatible sont ignorés plutôt que");
+                Console.Error.WriteLine("relus de travers.");
+                Console.Error.WriteLine();
+                Console.Error.WriteLine("Régénérez-la : GenomeAnalysis.Harvester.exe");
                 return 1;
             }
 

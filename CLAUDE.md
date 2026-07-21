@@ -30,6 +30,22 @@ VSTEST="D:/programmes/Microsoft Visual Studio/2022/Common7/IDE/Extensions/TestPl
 "$VSTEST" "GenomeAnalysis.Tests/bin/Debug/net48/GenomeAnalysis.Tests.dll"
 ```
 
+## Running the tool
+
+Two steps, and the order matters: the database is built first, offline of any user data; only then is a genome file read.
+
+```sh
+# 1. Build the variant database (~20 min, network). Needed once, and after any seed change.
+GenomeAnalysis.Harvester/bin/Debug/net48/GenomeAnalysis.Harvester.exe
+#    --cpic-only rebuilds just the pharmacogenomics tables, in seconds.
+
+# 2. Analyse a genome file — no network access whatsoever.
+GenomeAnalysis.App/bin/Debug/net48/GenomeAnalysis.exe          # desktop interface
+GenomeAnalysis.Cli/bin/Debug/net48/GenomeAnalysis.Cli.exe <fichier.txt>   # same analysis, console
+```
+
+If either front end reports the database as unreadable, the usual cause is a schema bump: `AnnotationSerializer` rejects payloads from an older layout rather than risk misreading fields. Re-run the harvester.
+
 ## Target solution structure
 
 ```
@@ -38,8 +54,14 @@ GenomeAnalysis.sln
 ├── GenomeAnalysis.Core/         Domain: models, parsers, rules engine. No web or network dependency.
 ├── GenomeAnalysis.Annotations/  Clients for external sources (SNPedia, Ensembl, MyVariant) + cache + local database
 ├── GenomeAnalysis.Harvester/    Console tool that builds data/variant-database.json. Never sees user data.
+├── GenomeAnalysis.App/          Windows Forms desktop interface. The front end.
+├── GenomeAnalysis.Cli/          Console front end over the same pipeline, for scripting and diffing.
 └── GenomeAnalysis.Tests/        Unit tests
 ```
+
+**Desktop rather than the ASP.NET MVC 5 application first planned.** A local web app needs IIS Express, a port and a package restore to answer "how do I run this"; a desktop executable is double-clicked. It also gives a native file picker, and — the substantive part — a process with no listening socket cannot be exposed on a network by accident, which is a structural guarantee where "do not deploy it" is only a convention. Nothing in `Core` or `Annotations` depends on the choice, so an MVC front end can still be added beside this one.
+
+**No upload, ever.** The interface takes a path and reads the file in place. The genome never travels through HTTP, is never buffered in memory wholesale, and never lands in a temporary folder.
 
 `Core` references neither `System.Web` nor `Annotations`. The engine receives annotations through interfaces defined in `Core` and implemented in `Annotations` — that is what makes the analysis testable without network or database.
 
