@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenomeAnalysis.Annotations"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenomeAnalysis.Tests", "GenomeAnalysis.Tests\GenomeAnalysis.Tests.csproj", "{97B1B7F4-F242-4321-A4F0-3453E4FA5C6C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenomeAnalysis.Harvester", "GenomeAnalysis.Harvester\GenomeAnalysis.Harvester.csproj", "{9F0E9BE6-53B9-46CA-8A9A-B32C1933F134}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{97B1B7F4-F242-4321-A4F0-3453E4FA5C6C}.Release|x64.Build.0 = Release|Any CPU
 		{97B1B7F4-F242-4321-A4F0-3453E4FA5C6C}.Release|x86.ActiveCfg = Release|Any CPU
 		{97B1B7F4-F242-4321-A4F0-3453E4FA5C6C}.Release|x86.Build.0 = Release|Any CPU
+		{9F0E9BE6-53B9-46CA-8A9A-B32C1933F134}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9F0E9BE6-53B9-46CA-8A9A-B32C1933F134}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9F0E9BE6-53B9-46CA-8A9A-B32C1933F134}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{9F0E9BE6-53B9-46CA-8A9A-B32C1933F134}.Debug|x64.Build.0 = Debug|Any CPU
+		{9F0E9BE6-53B9-46CA-8A9A-B32C1933F134}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{9F0E9BE6-53B9-46CA-8A9A-B32C1933F134}.Debug|x86.Build.0 = Debug|Any CPU
+		{9F0E9BE6-53B9-46CA-8A9A-B32C1933F134}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9F0E9BE6-53B9-46CA-8A9A-B32C1933F134}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9F0E9BE6-53B9-46CA-8A9A-B32C1933F134}.Release|x64.ActiveCfg = Release|Any CPU
+		{9F0E9BE6-53B9-46CA-8A9A-B32C1933F134}.Release|x64.Build.0 = Release|Any CPU
+		{9F0E9BE6-53B9-46CA-8A9A-B32C1933F134}.Release|x86.ActiveCfg = Release|Any CPU
+		{9F0E9BE6-53B9-46CA-8A9A-B32C1933F134}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

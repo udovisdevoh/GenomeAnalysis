@@ -20,7 +20,10 @@ namespace GenomeAnalysis.Core.Annotations
             SourceAttribution attribution,
             string? geneSymbol = null,
             ClinicalAnnotation? clinical = null,
-            double? minorAlleleFrequency = null)
+            double? minorAlleleFrequency = null,
+            IReadOnlyCollection<Nucleotide>? knownAlleles = null,
+            IReadOnlyList<string>? mergedRsIds = null,
+            string? mostSevereConsequence = null)
         {
             if (string.IsNullOrWhiteSpace(rsId))
             {
@@ -36,7 +39,12 @@ namespace GenomeAnalysis.Core.Annotations
             GeneSymbol = geneSymbol;
             Clinical = clinical;
             MinorAlleleFrequency = minorAlleleFrequency;
+            _knownAlleles = knownAlleles;
+            MergedRsIds = mergedRsIds ?? new List<string>();
+            MostSevereConsequence = mostSevereConsequence;
         }
+
+        private readonly IReadOnlyCollection<Nucleotide>? _knownAlleles;
 
         public string RsId { get; }
 
@@ -81,15 +89,38 @@ namespace GenomeAnalysis.Core.Annotations
         public SourceAttribution Attribution { get; }
 
         /// <summary>
-        /// The distinct alleles this variant is known to have, derived from its
-        /// genotype records. Used to detect palindromic variants and to sanity
-        /// check a complemented genotype.
+        /// Old rsIDs that dbSNP has merged into this one. A file from 2013 may
+        /// carry an identifier that no longer resolves; without this, real variants
+        /// come back "unknown".
         /// </summary>
+        public IReadOnlyList<string> MergedRsIds { get; }
+
+        /// <summary>Ensembl's most severe predicted consequence, where known.</summary>
+        public string? MostSevereConsequence { get; }
+
+        /// <summary>
+        /// The distinct alleles this variant is known to have. Taken from the
+        /// reference source when available (Ensembl reports them directly),
+        /// otherwise derived from the genotype records.
+        /// </summary>
+        /// <remarks>
+        /// Strand resolution depends on this. Without an allele set, a palindromic
+        /// variant cannot be told apart from a resolvable one, so
+        /// <see cref="Strands.StrandResolver"/> refuses to map anything at all.
+        /// </remarks>
         public IReadOnlyCollection<Nucleotide> KnownAlleles =>
-            Genotypes
-                .SelectMany(g => g.Genotype.Alleles)
-                .Distinct()
-                .ToList();
+            _knownAlleles != null && _knownAlleles.Count > 0
+                ? _knownAlleles
+                : Genotypes
+                    .SelectMany(g => g.Genotype.Alleles)
+                    .Distinct()
+                    .ToList();
+
+        /// <summary>
+        /// True when this variant's alleles are complementary (A/T or C/G), so a
+        /// homozygous call on it can never be strand-resolved.
+        /// </summary>
+        public bool IsPalindromic => Strands.StrandResolver.IsPalindromicVariant(KnownAlleles);
 
         /// <summary>
         /// Finds the record for a genotype already mapped into this annotation's

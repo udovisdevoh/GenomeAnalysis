@@ -1,0 +1,24 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>GenomeAnalysis.Harvester</RootNamespace>
+    <AssemblyName>GenomeAnalysis.Harvester</AssemblyName>
+    <Description>Builds the local variant database from public annotation sources.</Description>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\GenomeAnalysis.Core\GenomeAnalysis.Core.csproj" />
+    <ProjectReference Include="..\GenomeAnalysis.Annotations\GenomeAnalysis.Annotations.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The clients' optional HttpClient parameters surface in their public
+         signatures, so this assembly must reference it even though it never
+         constructs one. -->
+    <Reference Include="System.Net.Http" />
+  </ItemGroup>
+
+</Project>

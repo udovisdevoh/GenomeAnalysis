@@ -56,12 +56,20 @@ namespace GenomeAnalysis.Annotations.Http
         /// <summary>MyVariant.info tolerates more, but batching is preferred over rate.</summary>
         public static ThrottleOptions ForMyVariant() => new ThrottleOptions
         {
-            MinimumInterval = TimeSpan.FromMilliseconds(350)
+            MinimumInterval = TimeSpan.FromMilliseconds(350),
+            RequestTimeout = TimeSpan.FromMinutes(2)
         };
 
+        /// <summary>
+        /// Ensembl's batch endpoint is slow — several seconds for a handful of
+        /// identifiers — so the timeout has to be generous. Too short a value fails
+        /// as a bare "task was canceled" that looks like a network fault rather than
+        /// a server that simply takes its time.
+        /// </summary>
         public static ThrottleOptions ForEnsembl() => new ThrottleOptions
         {
-            MinimumInterval = TimeSpan.FromMilliseconds(200)
+            MinimumInterval = TimeSpan.FromMilliseconds(200),
+            RequestTimeout = TimeSpan.FromMinutes(5)
         };
     }
 }

@@ -36,7 +36,8 @@ VSTEST="D:/programmes/Microsoft Visual Studio/2022/Common7/IDE/Extensions/TestPl
 GenomeAnalysis.sln
 ├── GenomeAnalysis.Web/          MVC 5 + Web API 2 — controllers, views, reports
 ├── GenomeAnalysis.Core/         Domain: models, parsers, rules engine. No web or network dependency.
-├── GenomeAnalysis.Annotations/  Clients for external sources (SNPedia, Ensembl, ClinVar…) + cache
+├── GenomeAnalysis.Annotations/  Clients for external sources (SNPedia, Ensembl, MyVariant) + cache + local database
+├── GenomeAnalysis.Harvester/    Console tool that builds data/variant-database.json. Never sees user data.
 └── GenomeAnalysis.Tests/        Unit tests
 ```
 
@@ -72,7 +73,9 @@ SNPedia remains the primary source for human-readable text, but it is community-
 
 ### SNPedia
 
-- Endpoint: `https://bots.snpedia.com/api.php` (MediaWiki API). This is the intended access path for automated clients; do not scrape the HTML pages on `snpedia.com`.
+- Endpoint: `https://bots.snpedia.com/api.php` (MediaWiki API). SNPedia permits bots to read pages under `/index.php/` and asks that automated clients use the API for volume — so HTML parsing is a legitimate fallback, not something forbidden. Prefer the API regardless: it returns structured properties instead of a DOM that breaks whenever an editor reformats a template.
+- **As of July 2026 SNPedia is unreachable to automated clients.** `bots.snpedia.com/api.php` returns 502, and `www.snpedia.com` answers a 212-byte Incapsula JavaScript challenge instead of article content — including for `robots.txt`. Retry periodically; the site may recover.
+- Do **not** drive a headless browser to get past that challenge. Reading an open page is one thing; defeating a bot protection the operator deliberately switched on is another, and this project does not do it. If SNPedia stays unreachable, use its published bulk export, or do without — MyVariant.info and Ensembl cover the clinical ground and answer normally.
 - Licensed **CC BY-NC-SA 3.0 US**: non-commercial use, attribution required, share-alike. Attribution must appear in generated reports. Share-alike is viral — worth knowing before considering anything commercial.
 - Page naming: SNP page `Rs53576` (leading capital, rest lowercase); genotype page `Rs53576(A;A)`, alleles separated by `;` inside parentheses.
 - Metadata (`Magnitude`, `Repute`, `Summary`, `Orientation`, `StabilizedOrientation`) are Semantic MediaWiki properties — read them through the semantic API rather than by regex over wikitext.
@@ -104,6 +107,31 @@ What follows from this:
 - Prefer **bulk exports** — SNPedia publishes `snpedia.com/index.php/Bulk`, and ClinVar and gnomAD publish full files. An offline pre-populated cache removes the problem at the root and avoids tens of thousands of single-variant calls.
 - No network call may depend on the contents of the user's file. If the implementation makes that impossible, the design is what needs revisiting.
 - Rate: ~1 req/s serially against SNPedia, and respect published limits elsewhere. Send a User-Agent identifying the tool. On `429`/`5xx`, exponential backoff — never a tight retry loop.
+
+## The local variant database
+
+`data/variant-database.json` is the annotation source the application actually reads. It is built ahead of time by `GenomeAnalysis.Harvester` from `data/seed-variants.json` — a committed list of public identifiers — and queried offline through `VariantDatabase`.
+
+That ordering is the design, not an optimisation. The harvest happens with no user data anywhere near it; analysis happens with no network at all. There is therefore no request whose shape could reveal a genotype, which is a stronger guarantee than any amount of care about *what* gets sent.
+
+```sh
+GenomeAnalysis.Harvester/bin/Debug/net48/GenomeAnalysis.Harvester.exe   # ~50 s for 48 variants
+```
+
+The harvester merges two sources per variant, because neither is sufficient:
+
+- **Ensembl** supplies `allele_string` and strand. The allele set is what lets strand resolution detect a palindromic variant; without it `StrandResolver` refuses every lookup. It also supplies `synonyms`, from which merged rsIDs are extracted — that is what makes a 2013 file resolve.
+- **MyVariant.info** supplies ClinVar significance with review status, and gnomAD frequency.
+
+Re-run it after editing the seed list. The output is committed: it is public reference data, it makes the tool work offline out of the box, and its provenance block records every source licence.
+
+### Traps found by running it against real data
+
+Both of these passed fixture tests and were only exposed by live responses.
+
+- **Do not rank `ClinicalSignificance` by its enum order.** `Other`, `Association` and `RiskFactor` are declared above `Pathogenic`, so `Max()` returned `Other` for HFE C282Y — a well-established pathogenic variant came out unclassified. Rank on the pathogenicity axis explicitly.
+- **A minor allele frequency above 0.5 is the major allele.** Ensembl's `MAF` returns 0.98274 for rs6025 (factor V Leiden), whose risk allele is near 2%. Taken literally it marks a rare pathogenic variant as common, and the report plays it down. `AnnotationMerge` reads any value above 0.5 as its complement.
+- Aggregating ClinVar review status by taking the **weakest** submission sinks any well-studied variant: one submission out of forty without criteria drags an expert-panel classification to zero stars. Follow the best-reviewed submission and read the classification from that level.
 
 ## Strand orientation
 

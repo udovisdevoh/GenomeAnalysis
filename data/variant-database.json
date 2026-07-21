@@ -1,0 +1,1912 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-21T00:46:33.0926836+00:00",
+  "notice": "Reference data about public variant identifiers only. Contains no genotype and no data derived from any individual's genome. Built by GenomeAnalysis.Harvester from a public seed list. Attribution for each source is listed below and must be reproduced in any report built from this file.",
+  "sources": [
+    {
+      "name": "Ensembl",
+      "licence": "Apache 2.0 / open data",
+      "licenceUrl": null
+    },
+    {
+      "name": "ClinVar (NCBI)",
+      "licence": "Public domain",
+      "licenceUrl": null
+    },
+    {
+      "name": "gnomAD (Broad Institute)",
+      "licence": "CC0",
+      "licenceUrl": "https://creativecommons.org/publicdomain/zero/1.0/"
+    },
+    {
+      "name": "dbSNP (NCBI)",
+      "licence": "Public domain",
+      "licenceUrl": null
+    }
+  ],
+  "variantCount": 48,
+  "variants": {
+    "rs1042713": {
+      "v": 2,
+      "rsId": "rs1042713",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "LOC129994952",
+      "maf": 0.426578,
+      "alleles": "G/A/C",
+      "mergedRsIds": [
+        "rs17334242",
+        "rs3729940",
+        "rs52812686",
+        "rs3182174",
+        "rs17287432",
+        "rs56964295",
+        "rs17334179",
+        "rs17721693",
+        "rs17859732",
+        "rs17846639",
+        "rs17839749"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1042713"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "DrugResponse",
+        "reviewStatus": "ExpertPanel",
+        "conditions": [
+          "salmeterol response - Efficacy"
+        ],
+        "variationId": "225937",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/225937"
+        }
+      }
+    },
+    "rs1051730": {
+      "v": 2,
+      "rsId": "rs1051730",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "CHRNA3",
+      "maf": 0.258009,
+      "alleles": "G/A",
+      "mergedRsIds": [
+        "rs117683679",
+        "rs59313803",
+        "rs386514167",
+        "rs17486992"
+      ],
+      "consequence": "synonymous_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1051730"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Benign",
+        "reviewStatus": "SingleSubmitter",
+        "conditions": [
+          "Lung cancer susceptibility 2 (LNCR2)",
+          "SMOKING AS A QUANTITATIVE TRAIT LOCUS 3 (SQTL3)",
+          "not provided"
+        ],
+        "variationId": "17503",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/17503"
+        }
+      }
+    },
+    "rs1057910": {
+      "v": 2,
+      "rsId": "rs1057910",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "CYP2C9",
+      "maf": 0.0490021,
+      "alleles": "A/C/G",
+      "mergedRsIds": [
+        "rs61212474",
+        "rs17847042",
+        "rs3198471"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1057910"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Other",
+        "reviewStatus": "SingleSubmitter",
+        "conditions": [
+          "Glipizide response",
+          "Phenytoin response",
+          "Warfarin response",
+          "Tolbutamide response",
+          "not provided",
+          "Flurbiprofen response",
+          "Lesinurad response",
+          "Piroxicam response"
+        ],
+        "variationId": "8408",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/8408"
+        }
+      }
+    },
+    "rs1061170": {
+      "v": 2,
+      "rsId": "rs1061170",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "CFH",
+      "maf": 0.3659,
+      "alleles": "C/A/G/T",
+      "mergedRsIds": [
+        "rs60173482"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1061170"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Benign",
+        "reviewStatus": "MultipleSubmittersNoConflicts",
+        "conditions": [
+          "Basal laminar drusen",
+          "Age related macular degeneration 4",
+          "CFH-Related Dense Deposit Disease / Membranoproliferative Glomerulonephritis Type II",
+          "Hemolytic uremic syndrome, atypical, susceptibility to, 1",
+          "not provided",
+          "Factor H deficiency (CFHD)",
+          "Atypical hemolytic-uremic syndrome"
+        ],
+        "variationId": "294490",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/294490"
+        }
+      }
+    },
+    "rs1065852": {
+      "v": 2,
+      "rsId": "rs1065852",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "CYP2D6",
+      "maf": 0.191795,
+      "alleles": "G/A/C",
+      "mergedRsIds": [
+        "rs117813846",
+        "rs58862176"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1065852"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "LikelyBenign",
+        "reviewStatus": "SingleSubmitter",
+        "conditions": [
+          "Debrisoquine, poor metabolism of",
+          "not specified",
+          "not provided",
+          "Tamoxifen response",
+          "Deutetrabenazine response",
+          "Tramadol response"
+        ],
+        "variationId": "16893",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/16893"
+        }
+      }
+    },
+    "rs10757278": {
+      "v": 2,
+      "rsId": "rs10757278",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": null,
+      "maf": null,
+      "alleles": "A/C/G/T",
+      "mergedRsIds": [],
+      "consequence": "intergenic_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs10757278"
+      },
+      "genotypes": []
+    },
+    "rs12248560": {
+      "v": 2,
+      "rsId": "rs12248560",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "CYP2C19",
+      "maf": 0.205184,
+      "alleles": "C/A/T",
+      "mergedRsIds": [
+        "rs117093607",
+        "rs17442305",
+        "rs17879736"
+      ],
+      "consequence": "intron_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs12248560"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "DrugResponse",
+        "reviewStatus": "PracticeGuideline",
+        "conditions": [
+          "not provided",
+          "CYP2C19: increased function",
+          "Clopidogrel response",
+          "Citalopram response",
+          "Escitalopram response",
+          "Sertraline response",
+          "Voriconazole response",
+          "CYP2C19: no function"
+        ],
+        "variationId": "39357",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/39357"
+        }
+      }
+    },
+    "rs1229984": {
+      "v": 2,
+      "rsId": "rs1229984",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "ADH1B",
+      "maf": 0.060755,
+      "alleles": "T/A/C/G",
+      "mergedRsIds": [
+        "rs57624638",
+        "rs17856968",
+        "rs11537716",
+        "rs1789884",
+        "rs52797169",
+        "rs17028836"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1229984"
+      },
+      "genotypes": []
+    },
+    "rs12913832": {
+      "v": 2,
+      "rsId": "rs12913832",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "HERC2",
+      "maf": 0.437412,
+      "alleles": "A/C/G",
+      "mergedRsIds": [
+        "rs60078917"
+      ],
+      "consequence": "intron_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs12913832"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Association",
+        "reviewStatus": "NoAssertionCriteria",
+        "conditions": [
+          "SKIN/HAIR/EYE PIGMENTATION 1, BLUE/NONBLUE EYES (SHEP1)"
+        ],
+        "variationId": "4745",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/4745"
+        }
+      }
+    },
+    "rs13266634": {
+      "v": 2,
+      "rsId": "rs13266634",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "SLC30A8",
+      "maf": 0.265589,
+      "alleles": "C/A/T",
+      "mergedRsIds": [
+        "rs17813302",
+        "rs57876063"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs13266634"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Benign",
+        "reviewStatus": "NoAssertionCriteria",
+        "conditions": [
+          "Diabetes mellitus type 2, susceptibility to",
+          "SLC30A8-related disorder"
+        ],
+        "variationId": "1000",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/1000"
+        }
+      }
+    },
+    "rs1333049": {
+      "v": 2,
+      "rsId": "rs1333049",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "CDKN2B-AS1",
+      "maf": 0.418564,
+      "alleles": "G/A/C",
+      "mergedRsIds": [
+        "rs17761501",
+        "rs59077428",
+        "rs58844516"
+      ],
+      "consequence": "intergenic_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1333049"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "RiskFactor",
+        "reviewStatus": "NoAssertionCriteria",
+        "conditions": [
+          "Three Vessel Coronary Disease"
+        ],
+        "variationId": "812642",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/812642"
+        }
+      }
+    },
+    "rs1426654": {
+      "v": 2,
+      "rsId": "rs1426654",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "SLC24A5",
+      "maf": 0.291098,
+      "alleles": "A/G/T",
+      "mergedRsIds": [
+        "rs52802038",
+        "rs58147390"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1426654"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Benign",
+        "reviewStatus": "MultipleSubmittersNoConflicts",
+        "conditions": [
+          "not specified",
+          "not provided"
+        ],
+        "variationId": "263273",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/263273"
+        }
+      }
+    },
+    "rs17822931": {
+      "v": 2,
+      "rsId": "rs17822931",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "ABCC11",
+      "maf": 0.1604,
+      "alleles": "C/G/T",
+      "mergedRsIds": [
+        "rs52813591",
+        "rs58140753"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs17822931"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Benign",
+        "reviewStatus": "SingleSubmitter",
+        "conditions": [
+          "APOCRINE GLAND SECRETION, VARIATION IN",
+          "Axillary odor",
+          "Colostrum secretion",
+          "not provided"
+        ],
+        "variationId": "3558",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/3558"
+        }
+      }
+    },
+    "rs1799752": {
+      "v": 2,
+      "rsId": "rs1799752",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": null,
+      "maf": null,
+      "alleles": "",
+      "mergedRsIds": [],
+      "consequence": "intron_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1799752"
+      },
+      "genotypes": []
+    },
+    "rs1799853": {
+      "v": 2,
+      "rsId": "rs1799853",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "CYP2C9",
+      "maf": 0.0824673,
+      "alleles": "C/A/T",
+      "mergedRsIds": [
+        "rs60690363",
+        "rs33968134",
+        "rs28371674",
+        "rs17110268"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1799853"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "LikelyBenign",
+        "reviewStatus": "SingleSubmitter",
+        "conditions": [
+          "Warfarin response",
+          "not specified",
+          "not provided",
+          "Flurbiprofen response",
+          "Lesinurad response",
+          "Piroxicam response",
+          "Phenytoin response"
+        ],
+        "variationId": "8409",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/8409"
+        }
+      }
+    },
+    "rs1799945": {
+      "v": 2,
+      "rsId": "rs1799945",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "HFE-AS1",
+      "maf": 0.0994898,
+      "alleles": "C/G/T",
+      "mergedRsIds": [
+        "rs60366842",
+        "rs112961043",
+        "rs17515604"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1799945"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Pathogenic",
+        "reviewStatus": "MultipleSubmittersNoConflicts",
+        "conditions": [
+          "Hemochromatosis type 1 (HFE1)",
+          "not provided",
+          "Hereditary hemochromatosis (HFE)",
+          "Alzheimer disease",
+          "Variegate porphyria (VP)",
+          "Microvascular complications of diabetes, susceptibility to, 7",
+          "TRANSFERRIN SERUM LEVEL QUANTITATIVE TRAIT LOCUS 2 (TFQTL2)",
+          "Familial porphyria cutanea tarda (PCT)",
+          "not specified",
+          "Cystic fibrosis (CF)",
+          "Bronze diabetes",
+          "Cardiomyopathy (CMYO)",
+          "See cases"
+        ],
+        "variationId": "10",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/10"
+        }
+      }
+    },
+    "rs1799963": {
+      "v": 2,
+      "rsId": "rs1799963",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "F2",
+      "maf": 0.00844057,
+      "alleles": "G/A",
+      "mergedRsIds": [],
+      "consequence": "3_prime_UTR_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1799963"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Pathogenic",
+        "reviewStatus": "MultipleSubmittersNoConflicts",
+        "conditions": [
+          "Thrombophilia due to thrombin defect (THPH1)",
+          "Ischemic stroke",
+          "Pregnancy loss, recurrent, susceptibility to, 2 (RPRGL2)",
+          "Congenital prothrombin deficiency",
+          "Venous thromboembolism",
+          "not provided",
+          "Cerebral palsy",
+          "Thrombophilia caused by F2 prothrombin deficiency"
+        ],
+        "variationId": "13310",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/13310"
+        }
+      }
+    },
+    "rs1800497": {
+      "v": 2,
+      "rsId": "rs1800497",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "ANKK1",
+      "maf": 0.257243,
+      "alleles": "G/A",
+      "mergedRsIds": [
+        "rs4134623",
+        "rs59538675",
+        "rs4245144",
+        "rs117686243"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1800497"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Benign",
+        "reviewStatus": "SingleSubmitter",
+        "conditions": [
+          "Taq1A POLYMORPHISM",
+          "not specified",
+          "Schizophrenia (SCZD)",
+          "ANKK1-related disorder",
+          "not provided"
+        ],
+        "variationId": "2105",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/2105"
+        }
+      }
+    },
+    "rs1800562": {
+      "v": 2,
+      "rsId": "rs1800562",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "HFE",
+      "maf": 0.0382507,
+      "alleles": "G/A",
+      "mergedRsIds": [
+        "rs111535158",
+        "rs17530654",
+        "rs4134660",
+        "rs58044250"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1800562"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Pathogenic",
+        "reviewStatus": "MultipleSubmittersNoConflicts",
+        "conditions": [
+          "Hemochromatosis type 1 (HFE1)",
+          "not provided",
+          "Hereditary cancer-predisposing syndrome",
+          "Hereditary hemochromatosis (HFE)",
+          "Cutaneous photosensitivity",
+          "Porphyrinuria",
+          "Bronze diabetes",
+          "Abnormality of the nervous system",
+          "Atypical behavior",
+          "Abdominal pain",
+          "Abnormal peripheral nervous system morphology",
+          "Abnormality of the male genitalia",
+          "Pain",
+          "Peripheral neuropathy",
+          "Cardiomyopathy (CMYO)",
+          "HFE-related disorder",
+          "Inborn genetic diseases",
+          "Variegate porphyria (VP)",
+          "Microvascular complications of diabetes, susceptibility to, 7",
+          "Alzheimer disease type 1 (AD1)",
+          "TRANSFERRIN SERUM LEVEL QUANTITATIVE TRAIT LOCUS 2 (TFQTL2)",
+          "Familial porphyria cutanea tarda (PCT)",
+          "Juvenile hemochromatosis"
+        ],
+        "variationId": "9",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/9"
+        }
+      }
+    },
+    "rs1800730": {
+      "v": 2,
+      "rsId": "rs1800730",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "HFE-AS1",
+      "maf": 0.0100675,
+      "alleles": "A/T",
+      "mergedRsIds": [
+        "rs115372583",
+        "rs28934888"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1800730"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "UncertainSignificance",
+        "reviewStatus": "MultipleSubmittersNoConflicts",
+        "conditions": [
+          "Hemochromatosis type 1 (HFE1)",
+          "Hereditary hemochromatosis (HFE)",
+          "Alzheimer disease",
+          "Variegate porphyria (VP)",
+          "Microvascular complications of diabetes, susceptibility to, 7",
+          "TRANSFERRIN SERUM LEVEL QUANTITATIVE TRAIT LOCUS 2 (TFQTL2)",
+          "Familial porphyria cutanea tarda (PCT)",
+          "not provided",
+          "not specified",
+          "Alzheimer disease type 1 (AD1)",
+          "HFE-related disorder"
+        ],
+        "variationId": "11",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/11"
+        }
+      }
+    },
+    "rs1801131": {
+      "v": 2,
+      "rsId": "rs1801131",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "MTHFR",
+      "maf": 0.260381,
+      "alleles": "T/G",
+      "mergedRsIds": [
+        "rs17857426",
+        "rs4134712",
+        "rs17367365"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1801131"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Benign",
+        "reviewStatus": "MultipleSubmittersNoConflicts",
+        "conditions": [
+          "Schizophrenia, susceptibility to",
+          "MTHFR THERMOLABILE POLYMORPHISM",
+          "Gastrointestinal stromal tumor",
+          "not provided",
+          "Neural tube defects, folate-sensitive (NTDFS)",
+          "not specified",
+          "Homocystinuria due to methylene tetrahydrofolate reductase deficiency",
+          "MTHFR-related disorder",
+          "Schizophrenia (SCZD)",
+          "Thrombophilia due to thrombin defect (THPH1)"
+        ],
+        "variationId": "3521",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/3521"
+        }
+      }
+    },
+    "rs1801133": {
+      "v": 2,
+      "rsId": "rs1801133",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "MTHFR",
+      "maf": 0.257281,
+      "alleles": "G/A/C",
+      "mergedRsIds": [
+        "rs386545618",
+        "rs4134713",
+        "rs59514310"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1801133"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "DrugResponse",
+        "reviewStatus": "ExpertPanel",
+        "conditions": [
+          "MTHFR THERMOLABILE POLYMORPHISM",
+          "Gastrointestinal stromal tumor",
+          "not provided",
+          "Neural tube defects, folate-sensitive (NTDFS)",
+          "not specified",
+          "Thrombophilia due to thrombin defect (THPH1)",
+          "Homocystinuria due to methylene tetrahydrofolate reductase deficiency",
+          "methotrexate response - Toxicity",
+          "See cases"
+        ],
+        "variationId": "3520",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/3520"
+        }
+      }
+    },
+    "rs1801282": {
+      "v": 2,
+      "rsId": "rs1801282",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "PPARG",
+      "maf": 0.1,
+      "alleles": "C/G/T",
+      "mergedRsIds": [
+        "rs17749580",
+        "rs56460253",
+        "rs36206375",
+        "rs57327233",
+        "rs17241090"
+      ],
+      "consequence": "intron_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1801282"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "LikelyBenign",
+        "reviewStatus": "MultipleSubmittersNoConflicts",
+        "conditions": [
+          "not specified",
+          "INSULIN RESISTANCE, DIGENIC",
+          "PPARG-related familial partial lipodystrophy",
+          "Obesity",
+          "not provided"
+        ],
+        "variationId": "130019",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/130019"
+        }
+      }
+    },
+    "rs1805007": {
+      "v": 2,
+      "rsId": "rs1805007",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "MC1R",
+      "maf": 0.0498852,
+      "alleles": "C/A/G/T",
+      "mergedRsIds": [
+        "rs56569770",
+        "rs3212380",
+        "rs386505388",
+        "rs17719568"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1805007"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Benign",
+        "reviewStatus": "MultipleSubmittersNoConflicts",
+        "conditions": [
+          "Skin/hair/eye pigmentation 2, red hair/fair skin",
+          "Increased analgesia from kappa-opioid receptor agonist, female-specific",
+          "ALBINISM, OCULOCUTANEOUS, TYPE II, MODIFIER OF",
+          "not specified",
+          "not provided",
+          "Melanoma, cutaneous malignant, susceptibility to, 5"
+        ],
+        "variationId": "14312",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/14312"
+        }
+      }
+    },
+    "rs1815739": {
+      "v": 2,
+      "rsId": "rs1815739",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": null,
+      "maf": null,
+      "alleles": "C/A/T",
+      "mergedRsIds": [
+        "rs2305536",
+        "rs2228325",
+        "rs113388097",
+        "rs58342030"
+      ],
+      "consequence": "stop_gained",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs1815739"
+      },
+      "genotypes": []
+    },
+    "rs182549": {
+      "v": 2,
+      "rsId": "rs182549",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "MCM6",
+      "maf": 0.419021,
+      "alleles": "C/T",
+      "mergedRsIds": [
+        "rs607359",
+        "rs309823"
+      ],
+      "consequence": "intron_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs182549"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Association",
+        "reviewStatus": "NoAssertionCriteria",
+        "conditions": [
+          "LACTASE PERSISTENCE"
+        ],
+        "variationId": "7686",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/7686"
+        }
+      }
+    },
+    "rs2187668": {
+      "v": 2,
+      "rsId": "rs2187668",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": null,
+      "maf": 0.0775118,
+      "alleles": "C/T",
+      "mergedRsIds": [
+        "rs3948779",
+        "rs74942078",
+        "rs56581219",
+        "rs9272481",
+        "rs57194924",
+        "rs36182703",
+        "rs77691257",
+        "rs35922537",
+        "rs386499469",
+        "rs111767434"
+      ],
+      "consequence": "intron_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs2187668"
+      },
+      "genotypes": []
+    },
+    "rs2476601": {
+      "v": 2,
+      "rsId": "rs2476601",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "PTPN22",
+      "maf": 0.081749999999999989,
+      "alleles": "A/G/T",
+      "mergedRsIds": [
+        "rs52834763",
+        "rs117063937",
+        "rs60104027"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs2476601"
+      },
+      "genotypes": []
+    },
+    "rs2802292": {
+      "v": 2,
+      "rsId": "rs2802292",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "FOXO3",
+      "maf": 0.469976,
+      "alleles": "G/T",
+      "mergedRsIds": [
+        "rs60311040"
+      ],
+      "consequence": "intron_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs2802292"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Benign",
+        "reviewStatus": "SingleSubmitter",
+        "conditions": [
+          "not provided"
+        ],
+        "variationId": "1269978",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/1269978"
+        }
+      }
+    },
+    "rs3803662": {
+      "v": 2,
+      "rsId": "rs3803662",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": null,
+      "maf": 0.37849600000000005,
+      "alleles": "A/C/G",
+      "mergedRsIds": [
+        "rs58520216",
+        "rs386586683"
+      ],
+      "consequence": "non_coding_transcript_exon_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs3803662"
+      },
+      "genotypes": []
+    },
+    "rs3892097": {
+      "v": 2,
+      "rsId": "rs3892097",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "CYP2D6",
+      "maf": 0.137449,
+      "alleles": "C/A/G/T",
+      "mergedRsIds": [
+        "rs60082401",
+        "rs606231227",
+        "rs28371711",
+        "rs1800716"
+      ],
+      "consequence": "splice_acceptor_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs3892097"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "LikelyBenign",
+        "reviewStatus": "SingleSubmitter",
+        "conditions": [
+          "Debrisoquine, poor metabolism of",
+          "not provided",
+          "not specified",
+          "Tamoxifen response",
+          "Deutetrabenazine response",
+          "Tramadol response"
+        ],
+        "variationId": "16889",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/16889"
+        }
+      }
+    },
+    "rs4149056": {
+      "v": 2,
+      "rsId": "rs4149056",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "SLCO1B1",
+      "maf": 0.13572,
+      "alleles": "T/A/C",
+      "mergedRsIds": [
+        "rs52816141",
+        "rs60037639"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs4149056"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "DrugResponse",
+        "reviewStatus": "ExpertPanel",
+        "conditions": [
+          "Rotor syndrome (HBLRR)",
+          "not provided",
+          "simvastatin acid response - Metabolism/PK",
+          "Gilbert syndrome",
+          "not specified",
+          "rosuvastatin response - Metabolism/PK",
+          "simvastatin response - Toxicity",
+          "hmg coa reductase inhibitors response - Toxicity",
+          "atorvastatin response - Metabolism/PK",
+          "atorvastatin response - Toxicity",
+          "fluvastatin response - Metabolism/PK",
+          "fluvastatin response - Toxicity",
+          "lovastatin acid response - Metabolism/PK",
+          "lovastatin response - Metabolism/PK",
+          "lovastatin response - Toxicity",
+          "pitavastatin response - Metabolism/PK",
+          "pravastatin response - Toxicity",
+          "rosuvastatin response - Toxicity",
+          "simvastatin response - Metabolism/PK",
+          "SLCO1B1-related disorder"
+        ],
+        "variationId": "37346",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/37346"
+        }
+      }
+    },
+    "rs4244285": {
+      "v": 2,
+      "rsId": "rs4244285",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "CYP2C19",
+      "maf": 0.167115,
+      "alleles": "G/A/C/T",
+      "mergedRsIds": [
+        "rs60361278",
+        "rs116940633",
+        "rs17879456"
+      ],
+      "consequence": "synonymous_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs4244285"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "DrugResponse",
+        "reviewStatus": "PracticeGuideline",
+        "conditions": [
+          "Mephenytoin, poor metabolism of",
+          "Proguanil, poor metabolism of",
+          "Clopidogrel response",
+          "not provided",
+          "not specified",
+          "Citalopram response",
+          "Escitalopram response",
+          "Sertraline response",
+          "Voriconazole response",
+          "CYP2C19: no function"
+        ],
+        "variationId": "16897",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/16897"
+        }
+      }
+    },
+    "rs429358": {
+      "v": 2,
+      "rsId": "rs429358",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "APOE",
+      "maf": 0.164436,
+      "alleles": "T/C",
+      "mergedRsIds": [
+        "rs630496",
+        "rs61228756"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs429358"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "ConflictingInterpretations",
+        "reviewStatus": "ConflictingSubmissions",
+        "conditions": [
+          "APOE5 VARIANT",
+          "APOE4(-)-FREIBURG",
+          "Familial type 3 hyperlipoproteinemia",
+          "Alzheimer disease 2 (AD2)",
+          "not provided",
+          "Primary degenerative dementia of the Alzheimer type, presenile onset",
+          "not specified",
+          "Warfarin response",
+          "Alzheimer disease",
+          "Familial hypercholesterolemia",
+          "Alzheimer disease 4 (AD4)",
+          "Lipoprotein glomerulopathy (LPG)"
+        ],
+        "variationId": "441269",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/441269"
+        }
+      }
+    },
+    "rs4680": {
+      "v": 2,
+      "rsId": "rs4680",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "COMT",
+      "maf": 0.449051,
+      "alleles": "G/A",
+      "mergedRsIds": [
+        "rs17818178",
+        "rs3747070",
+        "rs17295216",
+        "rs1131157",
+        "rs165688",
+        "rs3190784",
+        "rs17849308",
+        "rs17349704",
+        "rs11544671",
+        "rs2070104",
+        "rs58002978",
+        "rs17850006",
+        "rs3177905"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs4680"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Benign",
+        "reviewStatus": "SingleSubmitter",
+        "conditions": [
+          "CATECHOL-O-METHYLTRANSFERASE POLYMORPHISM",
+          "not specified",
+          "Tramadol response",
+          "Schizophrenia (SCZD)",
+          "not provided"
+        ],
+        "variationId": "17591",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/17591"
+        }
+      }
+    },
+    "rs4986893": {
+      "v": 2,
+      "rsId": "rs4986893",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "CYP2C19",
+      "maf": 0.00283783,
+      "alleles": "G/A",
+      "mergedRsIds": [
+        "rs57081121",
+        "rs52827375"
+      ],
+      "consequence": "stop_gained",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs4986893"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "DrugResponse",
+        "reviewStatus": "PracticeGuideline",
+        "conditions": [
+          "Mephenytoin, poor metabolism of",
+          "Proguanil, poor metabolism of",
+          "not provided",
+          "Clopidogrel response",
+          "Escitalopram response",
+          "Citalopram response",
+          "Sertraline response",
+          "Voriconazole response",
+          "CYP2C19: no function",
+          "Acute coronary syndrome"
+        ],
+        "variationId": "16899",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/16899"
+        }
+      }
+    },
+    "rs4988235": {
+      "v": 2,
+      "rsId": "rs4988235",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "MCM6",
+      "maf": 0.415486,
+      "alleles": "G/A/C/T",
+      "mergedRsIds": [],
+      "consequence": "intron_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs4988235"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Association",
+        "reviewStatus": "NoAssertionCriteria",
+        "conditions": [
+          "LACTASE PERSISTENCE"
+        ],
+        "variationId": "7685",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/7685"
+        }
+      }
+    },
+    "rs53576": {
+      "v": 2,
+      "rsId": "rs53576",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": null,
+      "maf": null,
+      "alleles": "A/G/T",
+      "mergedRsIds": [
+        "rs61493474",
+        "rs345116"
+      ],
+      "consequence": "intron_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs53576"
+      },
+      "genotypes": []
+    },
+    "rs601338": {
+      "v": 2,
+      "rsId": "rs601338",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "FUT2",
+      "maf": 0.42529,
+      "alleles": "G/A",
+      "mergedRsIds": [
+        "rs58899004",
+        "rs17849550"
+      ],
+      "consequence": "stop_gained",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs601338"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Benign",
+        "reviewStatus": "SingleSubmitter",
+        "conditions": [
+          "Vitamin b12 plasma level quantitative trait locus 1 (B12QTL1)",
+          "SECRETOR/NONSECRETOR POLYMORPHISM",
+          "Familial Otitis Media",
+          "Bombay phenotype",
+          "not provided"
+        ],
+        "variationId": "12945",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/12945"
+        }
+      }
+    },
+    "rs6025": {
+      "v": 2,
+      "rsId": "rs6025",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": null,
+      "maf": 0.017260000000000053,
+      "alleles": "C/A/T",
+      "mergedRsIds": [
+        "rs1801711",
+        "rs60031897"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs6025"
+      },
+      "genotypes": []
+    },
+    "rs6265": {
+      "v": 2,
+      "rsId": "rs6265",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "BDNF-AS",
+      "maf": 0.151869,
+      "alleles": "C/T",
+      "mergedRsIds": [
+        "rs17855547",
+        "rs60760775",
+        "rs3829232",
+        "rs16917222",
+        "rs386602118"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs6265"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Benign",
+        "reviewStatus": "MultipleSubmittersNoConflicts",
+        "conditions": [
+          "not specified",
+          "Memory impairment, susceptibility to",
+          "not provided",
+          "Post-traumatic stress disorder (PTSD)"
+        ],
+        "variationId": "17697",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/17697"
+        }
+      }
+    },
+    "rs671": {
+      "v": 2,
+      "rsId": "rs671",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "ALDH2",
+      "maf": 0.013398,
+      "alleles": "G/A",
+      "mergedRsIds": [
+        "rs2230021",
+        "rs4986830",
+        "rs60823674",
+        "rs4134524"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs671"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "DrugResponse",
+        "reviewStatus": "ExpertPanel",
+        "conditions": [
+          "ESOPHAGEAL CANCER, ALCOHOL-RELATED, SUSCEPTIBILITY TO",
+          "SUBLINGUAL NITROGLYCERIN, SUSCEPTIBILITY TO POOR RESPONSE TO",
+          "Susceptibility to hangover",
+          "Alcohol dependence",
+          "Alcohol sensitivity, acute",
+          "AMED syndrome, digenic",
+          "ethanol response - Toxicity",
+          "ALDH2-related disorder"
+        ],
+        "variationId": "18390",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/18390"
+        }
+      }
+    },
+    "rs713598": {
+      "v": 2,
+      "rsId": "rs713598",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "TAS2R38",
+      "maf": 0.43225,
+      "alleles": "C/A/G/T",
+      "mergedRsIds": [
+        "rs17634738",
+        "rs52812444"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs713598"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "DrugResponse",
+        "reviewStatus": "NoAssertionCriteria",
+        "conditions": [
+          "Phenylthiocarbamide tasting"
+        ],
+        "variationId": "2904",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/2904"
+        }
+      }
+    },
+    "rs7412": {
+      "v": 2,
+      "rsId": "rs7412",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "APOE",
+      "maf": 0.0826848,
+      "alleles": "C/T",
+      "mergedRsIds": [
+        "rs3200542"
+      ],
+      "consequence": "missense_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs7412"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "DrugResponse",
+        "reviewStatus": "ExpertPanel",
+        "conditions": [
+          "Familial type 3 hyperlipoproteinemia",
+          "Hyperlipoproteinemia due to APOE1",
+          "atorvastatin response - Efficacy",
+          "not provided",
+          "not specified",
+          "Warfarin response",
+          "Hypercholesterolemia"
+        ],
+        "variationId": "441265",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/441265"
+        }
+      }
+    },
+    "rs762551": {
+      "v": 2,
+      "rsId": "rs762551",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "LOC110467516",
+      "maf": 0.333206,
+      "alleles": "C/A/G",
+      "mergedRsIds": [
+        "rs17861151",
+        "rs57172993"
+      ],
+      "consequence": "intron_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs762551"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "LikelyBenign",
+        "reviewStatus": "SingleSubmitter",
+        "conditions": [
+          "not specified",
+          "not provided"
+        ],
+        "variationId": "511079",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/511079"
+        }
+      }
+    },
+    "rs7903146": {
+      "v": 2,
+      "rsId": "rs7903146",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "LOC110121472",
+      "maf": null,
+      "alleles": "C/G/T",
+      "mergedRsIds": [
+        "rs60693287"
+      ],
+      "consequence": "intron_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs7903146"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "Other",
+        "reviewStatus": "NoAssertionCriteria",
+        "conditions": [
+          "Type 2 diabetes mellitus"
+        ],
+        "variationId": "1692994",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/1692994"
+        }
+      }
+    },
+    "rs9923231": {
+      "v": 2,
+      "rsId": "rs9923231",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": "VKORC1",
+      "maf": 0.325975,
+      "alleles": "C/A/G/T",
+      "mergedRsIds": [
+        "rs117572127",
+        "rs60511154",
+        "rs17878363"
+      ],
+      "consequence": "intergenic_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs9923231"
+      },
+      "genotypes": [],
+      "clinical": {
+        "significance": "DrugResponse",
+        "reviewStatus": "ExpertPanel",
+        "conditions": [
+          "Warfarin response",
+          "not provided",
+          "not specified",
+          "phenprocoumon response - Dosage",
+          "phenprocoumon response - Toxicity",
+          "warfarin response - Toxicity",
+          "Venous thromboembolism",
+          "warfarin response - Dosage",
+          "acenocoumarol response - Dosage",
+          "warfarin response - Efficacy",
+          "VKORC1-related disorder",
+          "See cases",
+          "Thrombus"
+        ],
+        "variationId": "2211",
+        "lastEvaluated": null,
+        "attribution": {
+          "source": "ClinVar (NCBI)",
+          "licence": "Public domain",
+          "licenceUrl": null,
+          "recordUrl": "https://www.ncbi.nlm.nih.gov/clinvar/variation/2211"
+        }
+      }
+    },
+    "rs9939609": {
+      "v": 2,
+      "rsId": "rs9939609",
+      "orientation": "Plus",
+      "stabilizedOrientation": "Unknown",
+      "summary": null,
+      "gene": null,
+      "maf": 0.416204,
+      "alleles": "T/A",
+      "mergedRsIds": [
+        "rs17817682",
+        "rs61046791",
+        "rs58374961"
+      ],
+      "consequence": "intron_variant",
+      "attribution": {
+        "source": "Ensembl",
+        "licence": "Apache 2.0 / open data",
+        "licenceUrl": null,
+        "recordUrl": "https://www.ensembl.org/Homo_sapiens/Variation/Explore?v=rs9939609"
+      },
+      "genotypes": []
+    }
+  }
+}

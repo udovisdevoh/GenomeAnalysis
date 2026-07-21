@@ -1,0 +1,60 @@
+{
+  "description": "Seed list for the local variant database. Public variant identifiers only, chosen for coverage of the analysis cases the engine has to handle. Nothing here derives from anyone's genome, which is what allows the harvester to run without leaking a genotype through its request pattern.",
+  "groups": [
+    {
+      "name": "APOE haplotype",
+      "note": "The canonical multi-marker case: the e2/e3/e4 alleles come from the combination of these two SNPs. Neither one alone carries the information.",
+      "rsIds": ["rs429358", "rs7412"]
+    },
+    {
+      "name": "HFE compound heterozygosity",
+      "note": "C282Y and H63D for hemochromatosis. Array data is unphased, so in-trans compound heterozygosity is indistinguishable from both variants sitting on one chromosome copy.",
+      "rsIds": ["rs1800562", "rs1799945", "rs1800730"]
+    },
+    {
+      "name": "MTHFR",
+      "note": "C677T and A1298C, frequently interpreted together and frequently overstated.",
+      "rsIds": ["rs1801133", "rs1801131"]
+    },
+    {
+      "name": "Thrombophilia",
+      "note": "Factor V Leiden and prothrombin G20210A. High-impact findings that must be framed as requiring confirmatory testing.",
+      "rsIds": ["rs6025", "rs1799963"]
+    },
+    {
+      "name": "Pharmacogenomics",
+      "note": "Star-allele defining positions for CYP2C9, CYP2C19, CYP2D6, plus VKORC1 for warfarin dosing. A diplotype, not a single genotype, determines the metabolizer phenotype.",
+      "rsIds": [
+        "rs1799853", "rs1057910", "rs4244285", "rs4986893", "rs12248560",
+        "rs3892097", "rs1065852", "rs9923231", "rs1799752", "rs4149056"
+      ]
+    },
+    {
+      "name": "Metabolism and diet",
+      "note": "Lactase persistence, alcohol flush, caffeine, alcohol dehydrogenase, coeliac-associated HLA tag.",
+      "rsIds": ["rs4988235", "rs182549", "rs671", "rs1229984", "rs762551", "rs2187668"]
+    },
+    {
+      "name": "Common complex-disease associations",
+      "note": "Well-replicated GWAS hits. Small effect sizes: the report must not present these with the weight of a monogenic finding.",
+      "rsIds": [
+        "rs7903146", "rs1801282", "rs13266634", "rs1333049", "rs10757278",
+        "rs2476601", "rs3803662", "rs1061170", "rs1051730", "rs9939609"
+      ]
+    },
+    {
+      "name": "Traits and phenotype",
+      "note": "Low-stakes, well-understood markers. Useful for exercising the engine without touching clinical content.",
+      "rsIds": [
+        "rs53576", "rs1815739", "rs17822931", "rs1805007", "rs1426654",
+        "rs12913832", "rs713598", "rs4680", "rs6265", "rs1800497",
+        "rs601338", "rs2802292", "rs1042713"
+      ]
+    },
+    {
+      "name": "Strand-resolution edge cases",
+      "note": "Deliberately included to exercise the ambiguous-flip path against real reference data rather than only against fixtures. Whichever of these turn out to be A/T or C/G variants must come back indeterminate on a homozygous call.",
+      "rsIds": ["rs1801133", "rs9939609", "rs4988235", "rs1800562", "rs12913832"]
+    }
+  ]
+}

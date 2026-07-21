@@ -17,6 +17,22 @@ namespace GenomeAnalysis.Annotations.Http
     /// </remarks>
     public sealed class ThrottledHttpClient : IDisposable
     {
+        static ThrottledHttpClient()
+        {
+            // .NET Framework 4.8 negotiates whatever ServicePointManager was left
+            // set to, which on many machines excludes TLS 1.2. Public APIs refuse
+            // anything older, and the failure surfaces as a request timeout rather
+            // than a handshake error, which is thoroughly misleading.
+            System.Net.ServicePointManager.SecurityProtocol |= System.Net.SecurityProtocolType.Tls12;
+
+            // .NET Framework sends "Expect: 100-continue" on POST by default and
+            // then waits for a go-ahead many servers never send. The request hangs
+            // until the client timeout, which reads as a network problem rather
+            // than a protocol default. GETs are unaffected, which makes it look
+            // stranger still.
+            System.Net.ServicePointManager.Expect100Continue = false;
+        }
+
         private readonly HttpClient _httpClient;
         private readonly ThrottleOptions _options;
         private readonly SemaphoreSlim _gate = new SemaphoreSlim(1, 1);
@@ -125,6 +141,28 @@ namespace GenomeAnalysis.Annotations.Http
                     () => new HttpRequestMessage(HttpMethod.Post, uri)
                     {
                         Content = new FormUrlEncodedContent(buffered)
+                    },
+                    cancellationToken)
+                .ConfigureAwait(false);
+        }
+
+        public async Task<string> PostJsonAsync(
+            Uri uri,
+            string json,
+            CancellationToken cancellationToken = default)
+        {
+            return await GetStringAsync(
+                    () =>
+                    {
+                        var request = new HttpRequestMessage(HttpMethod.Post, uri)
+                        {
+                            Content = new StringContent(json, System.Text.Encoding.UTF8, "application/json")
+                        };
+
+                        request.Headers.Accept.Add(
+                            new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+
+                        return request;
                     },
                     cancellationToken)
                 .ConfigureAwait(false);

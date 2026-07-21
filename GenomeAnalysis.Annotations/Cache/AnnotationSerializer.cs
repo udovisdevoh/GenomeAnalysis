@@ -18,7 +18,7 @@ namespace GenomeAnalysis.Annotations.Cache
     public static class AnnotationSerializer
     {
         /// <summary>Bumped when the payload shape changes, to invalidate stale rows.</summary>
-        public const int SchemaVersion = 1;
+        public const int SchemaVersion = 2;
 
         public static string ToJson(VariantAnnotation annotation)
         {
@@ -36,6 +36,9 @@ namespace GenomeAnalysis.Annotations.Cache
                 ["summary"] = annotation.Summary,
                 ["gene"] = annotation.GeneSymbol,
                 ["maf"] = annotation.MinorAlleleFrequency,
+                ["alleles"] = string.Join("/", annotation.KnownAlleles.Select(a => a.ToChar())),
+                ["mergedRsIds"] = new JArray(annotation.MergedRsIds),
+                ["consequence"] = annotation.MostSevereConsequence,
                 ["attribution"] = AttributionToJson(annotation.Attribution),
                 ["genotypes"] = new JArray(annotation.Genotypes.Select(GenotypeToJson))
             };
@@ -102,7 +105,13 @@ namespace GenomeAnalysis.Annotations.Cache
                 attribution,
                 payload["gene"]?.Value<string>(),
                 ClinicalFromJson(payload["clinical"] as JObject),
-                payload["maf"]?.Value<double?>());
+                payload["maf"]?.Value<double?>(),
+                ParseAlleles(payload["alleles"]?.Value<string>()),
+                (payload["mergedRsIds"] as JArray)?.Select(t => t.Value<string>())
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(s => s!)
+                    .ToList(),
+                payload["consequence"]?.Value<string>());
         }
 
         private static JObject GenotypeToJson(GenotypeAnnotation genotype) => new JObject
@@ -203,6 +212,28 @@ namespace GenomeAnalysis.Annotations.Cache
                 json!["licence"]?.Value<string>() ?? string.Empty,
                 json["licenceUrl"]?.Value<string>(),
                 json["recordUrl"]?.Value<string>());
+        }
+
+        private static IReadOnlyCollection<Nucleotide> ParseAlleles(string? alleleString)
+        {
+            var alleles = new List<Nucleotide>();
+
+            if (string.IsNullOrWhiteSpace(alleleString))
+            {
+                return alleles;
+            }
+
+            foreach (var part in alleleString!.Split('/'))
+            {
+                var token = part.Trim();
+
+                if (token.Length == 1 && NucleotideExtensions.TryParse(token[0], out var nucleotide))
+                {
+                    alleles.Add(nucleotide);
+                }
+            }
+
+            return alleles.Distinct().ToList();
         }
 
         private static Strand ParseStrand(string? value) => ParseEnum(value, Strand.Unknown);

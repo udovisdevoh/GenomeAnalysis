@@ -80,12 +80,12 @@ namespace GenomeAnalysis.Annotations.MyVariant
                 return null;
             }
 
-            var significances = records
-                .Select(r => ParseSignificance(r["clinical_significance"]?.Value<string>()))
-                .ToList();
-
-            var reviewStatuses = records
-                .Select(r => ParseReviewStatus(r["review_status"]?.Value<string>()))
+            var submissions = records
+                .Select(r => new
+                {
+                    Significance = ParseSignificance(r["clinical_significance"]?.Value<string>()),
+                    ReviewStatus = ParseReviewStatus(r["review_status"]?.Value<string>())
+                })
                 .ToList();
 
             var conditions = records
@@ -95,12 +95,32 @@ namespace GenomeAnalysis.Annotations.MyVariant
 
             var variationId = clinvar["variant_id"]?.ToString();
 
+            // Take the best-reviewed submission level, then read the classification
+            // from the submissions at that level.
+            //
+            // Taking the weakest instead is tempting as the cautious choice, but on
+            // real data it is simply wrong: a variant with forty submissions, one of
+            // which omits assertion criteria, would be reported at zero stars. HFE
+            // C282Y comes out looking unreviewed. ClinVar's own aggregate follows
+            // the strength of the evidence, not its weakest link.
+            var bestReview = submissions.Count == 0
+                ? ClinVarReviewStatus.NoAssertionCriteria
+                : submissions.Max(s => s.ReviewStatus.ToStarRating()) == 0
+                    ? submissions.Select(s => s.ReviewStatus).Max()
+                    : submissions
+                        .OrderByDescending(s => s.ReviewStatus.ToStarRating())
+                        .First().ReviewStatus;
+
+            var atBestReview = submissions
+                .Where(s => s.ReviewStatus.ToStarRating() == bestReview.ToStarRating())
+                .Select(s => s.Significance)
+                .ToList();
+
             return new ClinicalAnnotation(
-                ReconcileSignificance(significances),
-                // Take the weakest review status across submissions rather than the
-                // strongest. Presenting a variant at the level of its best-reviewed
-                // submission overstates how settled the interpretation is.
-                reviewStatuses.Count == 0 ? ClinVarReviewStatus.NoAssertionCriteria : reviewStatuses.Min(),
+                ReconcileSignificance(atBestReview.Count > 0
+                    ? atBestReview
+                    : submissions.Select(s => s.Significance).ToList()),
+                bestReview,
                 conditions,
                 SourceAttribution.ClinVar(variationId),
                 variationId);
@@ -141,9 +161,39 @@ namespace GenomeAnalysis.Annotations.MyVariant
                 return ClinicalSignificance.ConflictingInterpretations;
             }
 
-            // Same side of the line, differing only in confidence: keep the
-            // stronger of the two, which is the more cautious reading.
-            return meaningful.Max();
+            // Rank on the pathogenicity axis explicitly. Ordering by the enum's own
+            // numeric values would let Other, Association or RiskFactor — which sit
+            // higher in declaration order — outrank an actual Pathogenic call.
+            var ranked = meaningful
+                .Where(v => PathogenicityRank(v) > 0)
+                .OrderByDescending(PathogenicityRank)
+                .ToList();
+
+            if (ranked.Count > 0)
+            {
+                return ranked[0];
+            }
+
+            // Nothing on the pathogenicity axis: these are parallel labels such as
+            // drug response or risk factor, not degrees of the same claim.
+            return meaningful[0];
+        }
+
+        /// <summary>
+        /// Position on the benign-to-pathogenic axis, or 0 for classifications that
+        /// are not points on that axis at all.
+        /// </summary>
+        private static int PathogenicityRank(ClinicalSignificance significance)
+        {
+            switch (significance)
+            {
+                case ClinicalSignificance.Pathogenic: return 5;
+                case ClinicalSignificance.LikelyPathogenic: return 4;
+                case ClinicalSignificance.UncertainSignificance: return 3;
+                case ClinicalSignificance.LikelyBenign: return 2;
+                case ClinicalSignificance.Benign: return 1;
+                default: return 0;
+            }
         }
 
         public static ClinicalSignificance ParseSignificance(string? value)

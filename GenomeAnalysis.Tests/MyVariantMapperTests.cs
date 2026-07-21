@@ -72,10 +72,11 @@ namespace GenomeAnalysis.Tests
         }
 
         [Fact]
-        public void ReviewStatus_TakesTheWeakestSubmission_NotTheStrongest()
+        public void ReviewStatus_FollowsTheBestReviewedSubmission()
         {
-            // Presenting a variant at the level of its best-reviewed submission
-            // would overstate how settled the interpretation is.
+            // Reporting the weakest link instead would sink any well-established
+            // variant: one submission out of forty lacking criteria would drag an
+            // expert-panel classification down to zero stars.
             const string json = @"[{
               ""query"": ""rs1"",
               ""dbsnp"": { ""rsid"": ""rs1"" },
@@ -87,8 +88,49 @@ namespace GenomeAnalysis.Tests
 
             var annotation = MyVariantClient.ParseBatchResponse(json).Single().Value;
 
-            Assert.Equal(ClinVarReviewStatus.NoAssertionCriteria, annotation.Clinical!.ReviewStatus);
-            Assert.Equal(0, annotation.Clinical.ReviewStatus.ToStarRating());
+            Assert.Equal(ClinVarReviewStatus.ExpertPanel, annotation.Clinical!.ReviewStatus);
+            Assert.Equal(3, annotation.Clinical.ReviewStatus.ToStarRating());
+        }
+
+        [Fact]
+        public void ManySubmissions_DoNotLetParallelLabelsOutrankAPathogenicCall()
+        {
+            // Regression from real data: HFE C282Y (rs1800562) carries dozens of
+            // submissions spanning Pathogenic, risk factor, uncertain and other.
+            // Ranking by the enum's declaration order returned "Other", because
+            // Other is declared above Pathogenic — the variant came out looking
+            // unclassified.
+            const string json = @"[{
+              ""query"": ""rs1800562"",
+              ""dbsnp"": { ""rsid"": ""rs1800562"" },
+              ""clinvar"": { ""rcv"": [
+                { ""clinical_significance"": ""Pathogenic"",             ""review_status"": ""criteria provided, single submitter"" },
+                { ""clinical_significance"": ""risk factor"",            ""review_status"": ""criteria provided, single submitter"" },
+                { ""clinical_significance"": ""other"",                  ""review_status"": ""criteria provided, single submitter"" },
+                { ""clinical_significance"": ""Uncertain significance"", ""review_status"": ""criteria provided, single submitter"" }
+              ] }
+            }]";
+
+            var annotation = MyVariantClient.ParseBatchResponse(json).Single().Value;
+
+            Assert.Equal(ClinicalSignificance.Pathogenic, annotation.Clinical!.Significance);
+            Assert.True(annotation.Clinical.RequiresConfirmatoryTesting);
+        }
+
+        [Fact]
+        public void ParallelLabelsSurvive_WhenNothingSitsOnThePathogenicityAxis()
+        {
+            const string json = @"[{
+              ""query"": ""rs4149056"", ""dbsnp"": { ""rsid"": ""rs4149056"" },
+              ""clinvar"": { ""rcv"": [
+                { ""clinical_significance"": ""drug response"", ""review_status"": ""criteria provided, single submitter"" }
+              ] }
+            }]";
+
+            var annotation = MyVariantClient.ParseBatchResponse(json).Single().Value;
+
+            Assert.Equal(ClinicalSignificance.DrugResponse, annotation.Clinical!.Significance);
+            Assert.False(annotation.Clinical.RequiresConfirmatoryTesting);
         }
 
         [Fact]
