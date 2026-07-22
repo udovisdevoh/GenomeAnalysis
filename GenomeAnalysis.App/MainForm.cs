@@ -41,12 +41,16 @@ namespace GenomeAnalysis.App
 
         private readonly ListView _rulesList;
         private readonly TextBox _ruleDetailBox;
+        private readonly ListView _scoresList;
+        private readonly TextBox _scoreDetailBox;
 
         private VariantDatabase? _database;
         private IReadOnlyList<GenomeAnalysis.Core.Rules.RuleDefinition> _rules =
             new List<GenomeAnalysis.Core.Rules.RuleDefinition>();
         private IReadOnlyList<GenomeAnalysis.Core.Rules.Pharmacogene> _pharmacogenes =
             new List<GenomeAnalysis.Core.Rules.Pharmacogene>();
+        private IReadOnlyList<GenomeAnalysis.Core.Rules.PolygenicScore> _scores =
+            new List<GenomeAnalysis.Core.Rules.PolygenicScore>();
         private IReadOnlyList<Finding> _findings = new List<Finding>();
 
         public MainForm()
@@ -165,11 +169,36 @@ namespace GenomeAnalysis.App
             rulesSplit.Panel1.Controls.Add(_rulesList);
             rulesSplit.Panel2.Controls.Add(_ruleDetailBox);
 
+            _scoresList = CreateListView(
+                ("Score", 260), ("Trait", 220), ("Couverture", 150), ("Percentile", 130));
+            _scoresList.SelectedIndexChanged += (_, __) => ShowScoreDetail();
+
+            _scoreDetailBox = new TextBox
+            {
+                Multiline = true,
+                ReadOnly = true,
+                ScrollBars = ScrollBars.Vertical,
+                Dock = DockStyle.Fill,
+                BackColor = Color.White,
+                Font = new Font("Consolas", 9F),
+                BorderStyle = BorderStyle.None
+            };
+
+            var scoresSplit = new SplitContainer
+            {
+                Dock = DockStyle.Fill,
+                Orientation = Orientation.Horizontal,
+                SplitterDistance = 200
+            };
+            scoresSplit.Panel1.Controls.Add(_scoresList);
+            scoresSplit.Panel2.Controls.Add(_scoreDetailBox);
+
             _tabs = new TabControl { Dock = DockStyle.Fill };
 
             // Combinations first: a multi-marker conclusion usually carries more
             // meaning than any of the single markers it rests on.
             _tabs.TabPages.Add(CreateTab("Combinaisons", rulesSplit));
+            _tabs.TabPages.Add(CreateTab("Scores polygéniques", scoresSplit));
             _tabs.TabPages.Add(CreateTab("Résultats", findingsSplit));
             _tabs.TabPages.Add(CreateTab("Indéterminés", _indeterminateList));
             _tabs.TabPages.Add(CreateTab("Positions sans variant", _referenceList));
@@ -260,6 +289,8 @@ namespace GenomeAnalysis.App
             _rules = RuleLoader.Load(Path.Combine(FindRepositoryRoot(), "data", "rules.json"));
             _pharmacogenes = RuleLoader.LoadPharmacogenes(
                 Path.Combine(FindRepositoryRoot(), "data", "pharmacogenomics.json"));
+            _scores = RuleLoader.LoadPolygenicScores(
+                Path.Combine(FindRepositoryRoot(), "data", "polygenic-scores.json"));
 
             _databaseLabel.Text =
                 "Base locale : " + _database.Count.ToString("N0") + " variants, " +
@@ -301,6 +332,7 @@ namespace GenomeAnalysis.App
 
                 _findings = result.Findings;
                 PopulateRules(result.RuleResults);
+                PopulateScores(result.ScoreResults);
                 PopulateFindings();
                 PopulateIndeterminate();
                 PopulateReference();
@@ -345,7 +377,8 @@ namespace GenomeAnalysis.App
                     new GenomeAnalysis.Core.Rules.RuleEngine(_rules).Evaluate(findings)
                         .Concat(new GenomeAnalysis.Core.Rules.PharmacogenomicsEngine(_pharmacogenes)
                             .Evaluate(findings))
-                        .ToList());
+                        .ToList(),
+                    new GenomeAnalysis.Core.Rules.PolygenicScoreEngine(_scores).Evaluate(findings));
             }
         }
 
@@ -390,6 +423,106 @@ namespace GenomeAnalysis.App
                     "Aucune règle multi-marqueurs n'a pu être évaluée : les positions qu'elles " +
                     "requièrent sont absentes de ce fichier.";
             }
+        }
+
+        private void PopulateScores(IReadOnlyList<GenomeAnalysis.Core.Rules.PolygenicScoreResult> results)
+        {
+            _scoresList.BeginUpdate();
+            _scoresList.Items.Clear();
+
+            foreach (var result in results.Where(r =>
+                         r.Outcome != GenomeAnalysis.Core.Rules.PolygenicScoreOutcome.NotApplicable))
+            {
+                var item = new ListViewItem(result.Score.Name + "  [" + result.Score.Id + "]") { Tag = result };
+                item.SubItems.Add(result.Score.Trait);
+                item.SubItems.Add(result.VariantsCovered + " / " + result.VariantsInScore +
+                                  "  (" + (result.CoveredWeightFraction * 100).ToString("0.#") + " %)");
+                item.SubItems.Add(result.Percentile.HasValue
+                    ? result.Percentile.Value.ToString("0.#") + "e"
+                    : "non calculable");
+
+                // Partial coverage is the norm and is not an error, but it is muted
+                // so it never reads as a clean, population-placed result.
+                if (!result.Percentile.HasValue)
+                {
+                    item.ForeColor = MutedColour;
+                }
+
+                _scoresList.Items.Add(item);
+            }
+
+            _scoresList.EndUpdate();
+
+            if (_scoresList.Items.Count > 0)
+            {
+                _scoresList.Items[0].Selected = true;
+            }
+            else
+            {
+                _scoreDetailBox.Text =
+                    "Aucun score polygénique évaluable : ce fichier ne couvre aucun de leurs variants.";
+            }
+        }
+
+        private void ShowScoreDetail()
+        {
+            if (_scoresList.SelectedItems.Count == 0 ||
+                !(_scoresList.SelectedItems[0].Tag is GenomeAnalysis.Core.Rules.PolygenicScoreResult result))
+            {
+                return;
+            }
+
+            var text = new System.Text.StringBuilder();
+
+            text.AppendLine(result.Score.Name + "   [" + result.Score.Id + "]");
+            text.AppendLine("Trait : " + result.Score.Trait);
+            text.AppendLine("Ascendance de développement : " + result.Score.Ancestry);
+            text.AppendLine();
+
+            text.AppendLine("COUVERTURE");
+            text.AppendLine("  " + result.VariantsCovered + " des " + result.VariantsInScore +
+                            " variants du score sont présents dans ce fichier,");
+            text.AppendLine("  soit " + (result.CoveredWeightFraction * 100).ToString("0.#") +
+                            " % du poids total du score.");
+
+            if (result.VariantsExcludedAmbiguous > 0)
+            {
+                text.AppendLine("  " + result.VariantsExcludedAmbiguous +
+                                " variant(s) exclu(s) : flip ambigu (SNP palindromique non résoluble).");
+            }
+
+            if (result.VariantsExcludedMismatch > 0)
+            {
+                text.AppendLine("  " + result.VariantsExcludedMismatch +
+                                " variant(s) exclu(s) : génotype incompatible avec les allèles du score.");
+            }
+
+            text.AppendLine();
+            text.AppendLine("SCORE");
+            text.AppendLine("  Somme pondérée (partielle) : " + result.RawScore.ToString("0.0000"));
+
+            if (result.Percentile.HasValue)
+            {
+                text.AppendLine("  Percentile de population    : " + result.Percentile.Value.ToString("0.#") +
+                                "e  (z = " + result.ZScore.Value.ToString("0.00") + ")");
+            }
+            else
+            {
+                text.AppendLine("  Percentile de population    : non calculable");
+            }
+
+            text.AppendLine();
+            text.AppendLine("INTERPRÉTATION");
+            text.AppendLine("  " + result.Reason);
+            text.AppendLine();
+            text.AppendLine("  Rappel : un score polygénique est une somme de poids publiés, jamais un");
+            text.AppendLine("  produit d'odds ratios, et ne se compose pas avec d'autres scores.");
+            text.AppendLine();
+            text.AppendLine("SOURCE");
+            text.AppendLine("  PGS Catalog (" + result.Score.Id + ")");
+            text.AppendLine("  " + result.Score.Citation);
+
+            _scoreDetailBox.Text = text.ToString();
         }
 
         private void ShowRuleDetail()
@@ -810,16 +943,20 @@ namespace GenomeAnalysis.App
                 ParseStatistics statistics,
                 IReadOnlyList<Finding> findings,
                 AnalysisSummary summary,
-                IReadOnlyList<GenomeAnalysis.Core.Rules.RuleResult> ruleResults)
+                IReadOnlyList<GenomeAnalysis.Core.Rules.RuleResult> ruleResults,
+                IReadOnlyList<GenomeAnalysis.Core.Rules.PolygenicScoreResult> scoreResults)
             {
                 Header = header;
                 Statistics = statistics;
                 Findings = findings;
                 Summary = summary;
                 RuleResults = ruleResults;
+                ScoreResults = scoreResults;
             }
 
             public IReadOnlyList<GenomeAnalysis.Core.Rules.RuleResult> RuleResults { get; }
+
+            public IReadOnlyList<GenomeAnalysis.Core.Rules.PolygenicScoreResult> ScoreResults { get; }
 
             public GenomeFileHeader Header { get; }
 

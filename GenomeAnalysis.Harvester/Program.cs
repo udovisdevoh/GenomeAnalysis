@@ -9,6 +9,7 @@ using GenomeAnalysis.Annotations.Ensembl;
 using GenomeAnalysis.Annotations.Gwas;
 using GenomeAnalysis.Annotations.Local;
 using GenomeAnalysis.Annotations.MyVariant;
+using GenomeAnalysis.Annotations.Pgs;
 using GenomeAnalysis.Core.Annotations;
 using GenomeAnalysis.Core.Genome;
 using Newtonsoft.Json;
@@ -63,6 +64,7 @@ namespace GenomeAnalysis.Harvester
             // seconds, instead of re-querying every variant, which takes twenty
             // minutes. Useful whenever that file's shape changes.
             var cpicOnly = args.Any(a => string.Equals(a, "--cpic-only", StringComparison.OrdinalIgnoreCase));
+            var pgsOnly = args.Any(a => string.Equals(a, "--pgs-only", StringComparison.OrdinalIgnoreCase));
             var positional = args.Where(a => !a.StartsWith("--", StringComparison.Ordinal)).ToArray();
 
             var seedPath = positional.Length > 0 ? positional[0] : Path.Combine(repositoryRoot, "data", "seed-variants.json");
@@ -113,6 +115,49 @@ namespace GenomeAnalysis.Harvester
                 Path.GetDirectoryName(outputPath) ?? ".", "pharmacogenomics.json");
 
             SavePharmacogenomics(pharmacogenomicsPath, pharmacogenomics);
+
+            // Published polygenic scores from the PGS Catalog. A short curated list
+            // of small, classic scores: the point is a correct, honest computation
+            // and its coverage caveats, not breadth.
+            var pgsIds = new[] { "PGS000001", "PGS000778" };
+            var scoresPath = Path.Combine(Path.GetDirectoryName(outputPath) ?? ".", "polygenic-scores.json");
+
+            Console.WriteLine();
+            Console.WriteLine("Fetching polygenic scores from the PGS Catalog...");
+
+            var scores = new List<GenomeAnalysis.Core.Rules.PolygenicScore>();
+
+            using (var pgs = new PgsCatalogClient())
+            {
+                foreach (var pgsId in pgsIds)
+                {
+                    try
+                    {
+                        var score = await pgs.GetScoreAsync(pgsId, cancellationSource.Token).ConfigureAwait(false);
+
+                        if (score != null)
+                        {
+                            scores.Add(score);
+                            seed.AddRange(score.Variants.Select(v => v.RsId));
+                            Console.WriteLine("  " + pgsId.PadRight(12) + score.Variants.Count.ToString().PadLeft(5) +
+                                              " variants   " + score.Trait);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("  " + pgsId + " skipped: " + ex.Message);
+                    }
+                }
+            }
+
+            SavePolygenicScores(scoresPath, scores);
+
+            if (pgsOnly)
+            {
+                Console.WriteLine();
+                Console.WriteLine("--pgs-only: skipping the rest.");
+                return 0;
+            }
 
             if (cpicOnly)
             {
@@ -402,6 +447,66 @@ namespace GenomeAnalysis.Harvester
                 .OrderBy(r => r.Item1, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(r => r.Item2, StringComparer.OrdinalIgnoreCase)
                 .ToList();
+        }
+
+        private static void SavePolygenicScores(
+            string path,
+            IReadOnlyList<GenomeAnalysis.Core.Rules.PolygenicScore> scores)
+        {
+            var scoreArray = new JArray();
+
+            foreach (var score in scores)
+            {
+                scoreArray.Add(new JObject
+                {
+                    ["id"] = score.Id,
+                    ["name"] = score.Name,
+                    ["trait"] = score.Trait,
+                    ["ancestry"] = score.Ancestry,
+                    ["citation"] = score.Citation,
+                    ["genomeBuild"] = score.GenomeBuild,
+                    ["variantCount"] = score.Variants.Count,
+                    ["variants"] = new JArray(score.Variants.Select(v =>
+                    {
+                        var o = new JObject
+                        {
+                            ["rsId"] = v.RsId,
+                            ["effect"] = v.EffectAllele.ToString(),
+                            ["other"] = v.OtherAllele.ToString(),
+                            ["weight"] = v.Weight
+                        };
+
+                        if (v.EffectAlleleFrequency.HasValue)
+                        {
+                            o["freq"] = v.EffectAlleleFrequency.Value;
+                        }
+
+                        return o;
+                    }))
+                });
+            }
+
+            var root = new JObject
+            {
+                ["schemaVersion"] = 1,
+                ["generatedAt"] = DateTimeOffset.UtcNow.ToString("O"),
+                ["notice"] =
+                    "Published polygenic scores from the PGS Catalog (EBI/NHGRI, CC BY 4.0). Each score is a " +
+                    "pre-specified, cited variant list with per-allele weights, harmonized to GRCh37. The tool " +
+                    "computes the published score over the variants a file covers and reports that coverage; it " +
+                    "never composes a score from odds ratios, and withholds any percentile it cannot justify.",
+                ["source"] = new JObject
+                {
+                    ["name"] = "PGS Catalog",
+                    ["licence"] = "CC BY 4.0",
+                    ["url"] = "https://www.pgscatalog.org/"
+                },
+                ["scoreCount"] = scoreArray.Count,
+                ["scores"] = scoreArray
+            };
+
+            File.WriteAllText(path, root.ToString(Formatting.Indented), new System.Text.UTF8Encoding(false));
+            Console.WriteLine("Wrote " + scoreArray.Count + " polygenic scores to " + path);
         }
 
         private static void SavePharmacogenomics(string path, IReadOnlyList<GenePharmacogenomics> genes)

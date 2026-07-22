@@ -198,7 +198,24 @@ The report must not be a flat one-SNP-per-row list. Most useful interpretations 
 
 **Implemented.** `Core/Rules/RuleEngine.cs` evaluates rules loaded from `data/rules.json` — data, not compiled code, so adding a gene means editing that file. It runs after per-marker analysis and consumes its findings, which means the genotypes it sees are already strand-resolved. A finding that failed strand resolution is treated as a missing marker rather than used as though it had resolved.
 
-Three rule kinds exist. `haplotype` derives a diplotype by enumerating every pair of defined haplotypes consistent with the observed genotypes; `compoundHeterozygosity` reports whether two impairing variants in one gene are both present; and `PharmacogenomicsEngine` calls star-allele diplotypes from CPIC's tables in `data/pharmacogenomics.json`. Polygenic scores remain unimplemented — CLAUDE.md rightly warns against composing effects mechanically, and there is no defensible method to do it here yet.
+Three rule kinds plus polygenic scoring exist. `haplotype` derives a diplotype by enumerating every pair of defined haplotypes consistent with the observed genotypes; `compoundHeterozygosity` reports whether two impairing variants in one gene are both present; `PharmacogenomicsEngine` calls star-allele diplotypes from CPIC's tables in `data/pharmacogenomics.json`; and `PolygenicScoreEngine` computes published polygenic scores from `data/polygenic-scores.json`.
+
+### Polygenic scores — the defensible version
+
+The warning against composing effects mechanically stands, and this implementation obeys it. The line is between two different things:
+
+- **Forbidden:** taking published odds ratios from a handful of GWAS hits and multiplying them. Different populations, different adjustments, an independence assumption that does not hold, and a near-random sliver of any real score. This is never done.
+- **Done instead:** computing a *published, pre-specified* score from the **PGS Catalog** (EBI/NHGRI) — a registered, cited variant list with per-allele weights on the log-odds scale, harmonized to GRCh37. The score is `Σ dosage(effect allele) × weight`. Summing log-odds weights is the correct operation; it is not a product of odds ratios.
+
+What makes it honest rather than just computable:
+
+- **Coverage is measured by weight, not variant count** (`CoveredWeightFraction`). Covering many tiny-weight variants while missing the few large ones is poor coverage, and the number says so.
+- **Missing is excluded, never imputed to zero dosage** — that would bias the sum toward the other allele.
+- **The effect allele is strand-reconciled** through the same `StrandResolver`. Palindromic score variants on a homozygous call are excluded as ambiguous flips, not guessed.
+- **No percentile is invented.** A raw sum is meaningless without a reference distribution. A percentile is produced only when the score ships effect-allele frequencies (a model-based reference under HWE + independence, computed over the covered set) or a documented reference mean/SD, *and* covered weight clears `MinimumCoverageForPercentile` (0.80). Otherwise the result is the raw partial sum with an explicit "cannot be placed on a population distribution". On real consumer-chip data this is the usual outcome — and it is correct, not a shortfall.
+- **Ancestry travels with every placed result.** The score was developed in one population and transfers poorly outside it; a placed result states this.
+
+The engine consumes observed genotypes directly, because a score carries its own alleles and so needs no annotation-database entry for its variants. `PGS000001` (Mavaddat 77-SNP breast cancer) and `PGS000778` are fetched by the harvester with full citations. Polygenic risk from array data is exactly where overstatement is easiest, so the coverage gate and the refusal to fabricate a percentile are the point of the feature, not caveats on it.
 
 **Pharmacogenomic coverage is the honest-reporting case.** A star allele is a haplotype, so calling one is the same enumeration as APOE — but CYP2D6 has 146 defining positions and a consumer array carries a handful. An allele is only *assessable* when every position defining it was read; the rest are not excluded, and the result says so. An untested no-function allele hiding behind an apparent `*1` would change the phenotype entirely, so a call reads "consistent with `*1/*2` among the alleles that could be assessed", never a bare diplotype. When too few positions are covered the result is `Indeterminate` with the coverage stated (e.g. "3 of 35 positions read"), never a guess. On real 23andMe data most pharmacogenes come back indeterminate for exactly this reason — which is correct, not a failure.
 

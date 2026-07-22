@@ -1,0 +1,617 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-07-21T23:19:44.8328013+00:00",
+  "notice": "Published polygenic scores from the PGS Catalog (EBI/NHGRI, CC BY 4.0). Each score is a pre-specified, cited variant list with per-allele weights, harmonized to GRCh37. The tool computes the published score over the variants a file covers and reports that coverage; it never composes a score from odds ratios, and withholds any percentile it cannot justify.",
+  "source": {
+    "name": "PGS Catalog",
+    "licence": "CC BY 4.0",
+    "url": "https://www.pgscatalog.org/"
+  },
+  "scoreCount": 2,
+  "scores": [
+    {
+      "id": "PGS000001",
+      "name": "PRS77_BC",
+      "trait": "Breast cancer",
+      "ancestry": "EUR",
+      "citation": "Prediction of breast cancer risk based on profiling with common genetic variants.",
+      "genomeBuild": "GRCh37",
+      "variantCount": 77,
+      "variants": [
+        {
+          "rsId": "rs78540526",
+          "effect": "T",
+          "other": "C",
+          "weight": 0.16220387987485377
+        },
+        {
+          "rsId": "rs75915166",
+          "effect": "A",
+          "other": "C",
+          "weight": 0.023618865598634027
+        },
+        {
+          "rsId": "rs554219",
+          "effect": "G",
+          "other": "C",
+          "weight": 0.1167157996959607
+        },
+        {
+          "rsId": "rs7726159",
+          "effect": "A",
+          "other": "C",
+          "weight": 0.035270614081919331
+        },
+        {
+          "rsId": "rs10069690",
+          "effect": "T",
+          "other": "C",
+          "weight": 0.023911820046312877
+        },
+        {
+          "rsId": "rs2736108",
+          "effect": "T",
+          "other": "C",
+          "weight": -0.064111945467244288
+        },
+        {
+          "rsId": "rs2588809",
+          "effect": "T",
+          "other": "C",
+          "weight": 0.064569770649300071
+        },
+        {
+          "rsId": "rs999737",
+          "effect": "T",
+          "other": "C",
+          "weight": -0.079151438305437541
+        },
+        {
+          "rsId": "rs10759243",
+          "effect": "A",
+          "other": "C",
+          "weight": 0.052782185438969481
+        },
+        {
+          "rsId": "rs865686",
+          "effect": "G",
+          "other": "T",
+          "weight": -0.10702857275852336
+        },
+        {
+          "rsId": "rs2981579",
+          "effect": "A",
+          "other": "G",
+          "weight": 0.22506171047011356
+        },
+        {
+          "rsId": "rs11199914",
+          "effect": "T",
+          "other": "C",
+          "weight": -0.061875403718087529
+        },
+        {
+          "rsId": "rs7072776",
+          "effect": "A",
+          "other": "G",
+          "weight": 0.056474846927978987
+        },
+        {
+          "rsId": "rs11814448",
+          "effect": "C",
+          "other": "A",
+          "weight": 0.19721016928770527
+        },
+        {
+          "rsId": "rs13387042",
+          "effect": "G",
+          "other": "A",
+          "weight": -0.12851542223542736
+        },
+        {
+          "rsId": "rs16857609",
+          "effect": "T",
+          "other": "C",
+          "weight": 0.06961934188005707
+        },
+        {
+          "rsId": "rs11552449",
+          "effect": "T",
+          "other": "C",
+          "weight": 0.0778865386570712
+        },
+        {
+          "rsId": "rs11249433",
+          "effect": "G",
+          "other": "A",
+          "weight": 0.094673613602680992
+        },
+        {
+          "rsId": "rs1045485",
+          "effect": "C",
+          "other": "G",
+          "weight": -0.036249132675121032
+        },
+        {
+          "rsId": "rs4973768",
+          "effect": "T",
+          "other": "C",
+          "weight": 0.0896578719305354
+        },
+        {
+          "rsId": "rs10941679",
+          "effect": "G",
+          "other": "A",
+          "weight": 0.11315009793265578
+        },
+        {
+          "rsId": "rs889312",
+          "effect": "C",
+          "other": "A",
+          "weight": 0.11118352896061494
+        },
+        {
+          "rsId": "rs12662670",
+          "effect": "G",
+          "other": "T",
+          "weight": 0.13032626167557426
+        },
+        {
+          "rsId": "rs2046210",
+          "effect": "A",
+          "other": "G",
+          "weight": 0.046024438311279253
+        },
+        {
+          "rsId": "rs13281615",
+          "effect": "G",
+          "other": "A",
+          "weight": 0.090754363268464117
+        },
+        {
+          "rsId": "rs1011970",
+          "effect": "T",
+          "other": "G",
+          "weight": 0.048980622221621882
+        },
+        {
+          "rsId": "rs2380205",
+          "effect": "T",
+          "other": "C",
+          "weight": -0.023166278031839585
+        },
+        {
+          "rsId": "rs10995190",
+          "effect": "A",
+          "other": "G",
+          "weight": -0.15513449694999074
+        },
+        {
+          "rsId": "rs704010",
+          "effect": "T",
+          "other": "C",
+          "weight": 0.067565186162423879
+        },
+        {
+          "rsId": "rs3817198",
+          "effect": "C",
+          "other": "T",
+          "weight": 0.071762366226890792
+        },
+        {
+          "rsId": "rs10771399",
+          "effect": "G",
+          "other": "A",
+          "weight": -0.14745646946787522
+        },
+        {
+          "rsId": "rs1292011",
+          "effect": "G",
+          "other": "A",
+          "weight": -0.081318521177588338
+        },
+        {
+          "rsId": "rs3803662",
+          "effect": "A",
+          "other": "G",
+          "weight": 0.20351210936498243
+        },
+        {
+          "rsId": "rs6504950",
+          "effect": "A",
+          "other": "G",
+          "weight": -0.068278840753294379
+        },
+        {
+          "rsId": "rs8170",
+          "effect": "A",
+          "other": "G",
+          "weight": 0.03091710263472161
+        },
+        {
+          "rsId": "rs2363956",
+          "effect": "T",
+          "other": "G",
+          "weight": 0.0260575343192896
+        },
+        {
+          "rsId": "rs2823093",
+          "effect": "A",
+          "other": "G",
+          "weight": -0.0753703070247766
+        },
+        {
+          "rsId": "rs17879961",
+          "effect": "G",
+          "other": "A",
+          "weight": 0.30983487709291418
+        },
+        {
+          "rsId": "rs616488",
+          "effect": "G",
+          "other": "A",
+          "weight": -0.060068526466119515
+        },
+        {
+          "rsId": "rs4849887",
+          "effect": "T",
+          "other": "C",
+          "weight": -0.084795651704716327
+        },
+        {
+          "rsId": "rs2016394",
+          "effect": "A",
+          "other": "G",
+          "weight": -0.050872330373756547
+        },
+        {
+          "rsId": "rs1550623",
+          "effect": "G",
+          "other": "A",
+          "weight": -0.0570995920405728
+        },
+        {
+          "rsId": "rs6762644",
+          "effect": "G",
+          "other": "A",
+          "weight": 0.06400712997429242
+        },
+        {
+          "rsId": "rs12493607",
+          "effect": "C",
+          "other": "G",
+          "weight": 0.051548261880576554
+        },
+        {
+          "rsId": "rs9790517",
+          "effect": "T",
+          "other": "C",
+          "weight": 0.046979001193994639
+        },
+        {
+          "rsId": "rs6828523",
+          "effect": "A",
+          "other": "C",
+          "weight": -0.099157571533218608
+        },
+        {
+          "rsId": "rs10472076",
+          "effect": "C",
+          "other": "T",
+          "weight": 0.041045969436001022
+        },
+        {
+          "rsId": "rs1353747",
+          "effect": "G",
+          "other": "T",
+          "weight": -0.08196956286725067
+        },
+        {
+          "rsId": "rs1432679",
+          "effect": "G",
+          "other": "A",
+          "weight": 0.064850972319616271
+        },
+        {
+          "rsId": "rs11242675",
+          "effect": "C",
+          "other": "T",
+          "weight": -0.058795046510505489
+        },
+        {
+          "rsId": "rs204247",
+          "effect": "G",
+          "other": "A",
+          "weight": 0.049075837646592645
+        },
+        {
+          "rsId": "rs17529111",
+          "effect": "G",
+          "other": "A",
+          "weight": 0.044686517622406094
+        },
+        {
+          "rsId": "rs720475",
+          "effect": "A",
+          "other": "G",
+          "weight": -0.056358733669384237
+        },
+        {
+          "rsId": "rs9693444",
+          "effect": "A",
+          "other": "C",
+          "weight": 0.07045846364856137
+        },
+        {
+          "rsId": "rs6472903",
+          "effect": "G",
+          "other": "T",
+          "weight": -0.0916767885719041
+        },
+        {
+          "rsId": "rs2943559",
+          "effect": "G",
+          "other": "A",
+          "weight": 0.12522196475338179
+        },
+        {
+          "rsId": "rs11780156",
+          "effect": "T",
+          "other": "C",
+          "weight": 0.066817173037317087
+        },
+        {
+          "rsId": "rs7904519",
+          "effect": "G",
+          "other": "A",
+          "weight": 0.056758333818608883
+        },
+        {
+          "rsId": "rs3903072",
+          "effect": "T",
+          "other": "G",
+          "weight": -0.057417270869950646
+        },
+        {
+          "rsId": "rs11820646",
+          "effect": "T",
+          "other": "C",
+          "weight": -0.044683607626640025
+        },
+        {
+          "rsId": "rs12422552",
+          "effect": "C",
+          "other": "G",
+          "weight": 0.0321767316952212
+        },
+        {
+          "rsId": "rs17356907",
+          "effect": "G",
+          "other": "A",
+          "weight": -0.096731188959771758
+        },
+        {
+          "rsId": "rs11571833",
+          "effect": "T",
+          "other": "A",
+          "weight": 0.23182575169704359
+        },
+        {
+          "rsId": "rs2236007",
+          "effect": "A",
+          "other": "G",
+          "weight": -0.083055575137325838
+        },
+        {
+          "rsId": "rs941764",
+          "effect": "G",
+          "other": "A",
+          "weight": 0.061659380386727788
+        },
+        {
+          "rsId": "rs17817449",
+          "effect": "G",
+          "other": "T",
+          "weight": -0.072570692834835374
+        },
+        {
+          "rsId": "rs13329835",
+          "effect": "G",
+          "other": "A",
+          "weight": 0.073064570857005226
+        },
+        {
+          "rsId": "rs527616",
+          "effect": "C",
+          "other": "G",
+          "weight": -0.043638457029829492
+        },
+        {
+          "rsId": "rs1436904",
+          "effect": "G",
+          "other": "T",
+          "weight": -0.054878661509989449
+        },
+        {
+          "rsId": "rs4808801",
+          "effect": "G",
+          "other": "A",
+          "weight": -0.067315707284867118
+        },
+        {
+          "rsId": "rs3760982",
+          "effect": "A",
+          "other": "G",
+          "weight": 0.053825086694907369
+        },
+        {
+          "rsId": "rs132390",
+          "effect": "C",
+          "other": "T",
+          "weight": 0.10354887562855884
+        },
+        {
+          "rsId": "rs6001930",
+          "effect": "C",
+          "other": "T",
+          "weight": 0.12619202523775941
+        },
+        {
+          "rsId": "rs4245739",
+          "effect": "C",
+          "other": "A",
+          "weight": 0.02868463385990886
+        },
+        {
+          "rsId": "rs6678914",
+          "effect": "A",
+          "other": "G",
+          "weight": -0.011060947359424948
+        },
+        {
+          "rsId": "rs12710696",
+          "effect": "A",
+          "other": "G",
+          "weight": 0.037969931251628626
+        },
+        {
+          "rsId": "rs11075995",
+          "effect": "T",
+          "other": "A",
+          "weight": 0.036139046615873138
+        }
+      ]
+    },
+    {
+      "id": "PGS000778",
+      "name": "PRSHCM",
+      "trait": "Hypertrophic cardiomyopathy",
+      "ancestry": "MAE",
+      "citation": "Shared genetic pathways contribute to risk of hypertrophic and dilated cardiomyopathies with opposite directions of effect.",
+      "genomeBuild": "GRCh37",
+      "variantCount": 20,
+      "variants": [
+        {
+          "rsId": "rs10803407",
+          "effect": "T",
+          "other": "C",
+          "weight": 0.095460799
+        },
+        {
+          "rsId": "rs3770776",
+          "effect": "G",
+          "other": "A",
+          "weight": 0.072482473
+        },
+        {
+          "rsId": "rs3967688",
+          "effect": "T",
+          "other": "A",
+          "weight": 0.080020467
+        },
+        {
+          "rsId": "rs9647379",
+          "effect": "C",
+          "other": "G",
+          "weight": 0.073113527
+        },
+        {
+          "rsId": "rs2191445",
+          "effect": "T",
+          "other": "A",
+          "weight": 0.090248593
+        },
+        {
+          "rsId": "rs4385202",
+          "effect": "A",
+          "other": "G",
+          "weight": 0.080892855
+        },
+        {
+          "rsId": "rs66761782",
+          "effect": "C",
+          "other": "T",
+          "weight": 0.129469282
+        },
+        {
+          "rsId": "rs12210733",
+          "effect": "A",
+          "other": "G",
+          "weight": 0.172812073
+        },
+        {
+          "rsId": "rs60871386",
+          "effect": "T",
+          "other": "G",
+          "weight": 0.126195156
+        },
+        {
+          "rsId": "rs3740293",
+          "effect": "C",
+          "other": "A",
+          "weight": 0.117024343
+        },
+        {
+          "rsId": "rs11196078",
+          "effect": "A",
+          "other": "G",
+          "weight": 0.091728
+        },
+        {
+          "rsId": "rs17099139",
+          "effect": "G",
+          "other": "C",
+          "weight": 0.142147063
+        },
+        {
+          "rsId": "rs4757219",
+          "effect": "T",
+          "other": "G",
+          "weight": 0.071085109
+        },
+        {
+          "rsId": "rs11073729",
+          "effect": "C",
+          "other": "T",
+          "weight": 0.104822203
+        },
+        {
+          "rsId": "rs8056644",
+          "effect": "C",
+          "other": "T",
+          "weight": 0.075528244
+        },
+        {
+          "rsId": "rs4790351",
+          "effect": "G",
+          "other": "C",
+          "weight": 0.120550346
+        },
+        {
+          "rsId": "rs199443",
+          "effect": "T",
+          "other": "C",
+          "weight": 0.109073831
+        },
+        {
+          "rsId": "rs9892651",
+          "effect": "T",
+          "other": "C",
+          "weight": 0.080357072
+        },
+        {
+          "rsId": "rs503274",
+          "effect": "C",
+          "other": "T",
+          "weight": 0.128888919
+        },
+        {
+          "rsId": "rs2186370",
+          "effect": "A",
+          "other": "G",
+          "weight": 0.120311993
+        }
+      ]
+    }
+  ]
+}

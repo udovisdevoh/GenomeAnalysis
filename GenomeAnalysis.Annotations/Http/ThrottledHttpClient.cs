@@ -168,6 +168,63 @@ namespace GenomeAnalysis.Annotations.Http
                 .ConfigureAwait(false);
         }
 
+        /// <summary>
+        /// Downloads raw bytes, for content that is not text — a gzipped scoring
+        /// file, say. Shares the same throttle, retry and backoff as the rest.
+        /// </summary>
+        public async Task<byte[]> GetBytesAsync(
+            Uri uri,
+            CancellationToken cancellationToken = default)
+        {
+            var backoff = _options.InitialBackoff;
+            HttpRequestException? lastError = null;
+
+            for (var attempt = 0; attempt <= _options.MaxRetries; attempt++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                await WaitForSlotAsync(cancellationToken).ConfigureAwait(false);
+
+                HttpResponseMessage? response = null;
+
+                try
+                {
+                    using (var request = new HttpRequestMessage(HttpMethod.Get, uri))
+                    {
+                        response = await _httpClient
+                            .SendAsync(request, HttpCompletionOption.ResponseContentRead, cancellationToken)
+                            .ConfigureAwait(false);
+                    }
+
+                    if (response.IsSuccessStatusCode)
+                    {
+                        return await response.Content.ReadAsByteArrayAsync().ConfigureAwait(false);
+                    }
+
+                    if (!IsRetryable(response.StatusCode) || attempt == _options.MaxRetries)
+                    {
+                        throw new HttpRequestException(
+                            "Download failed with status " + (int)response.StatusCode + " " + response.StatusCode + ".");
+                    }
+
+                    lastError = new HttpRequestException("Retryable status " + (int)response.StatusCode + ".");
+                    await Task.Delay(Min(backoff, _options.MaximumBackoff), cancellationToken).ConfigureAwait(false);
+                    backoff = Min(TimeSpan.FromTicks(backoff.Ticks * 2), _options.MaximumBackoff);
+                }
+                catch (HttpRequestException ex) when (attempt < _options.MaxRetries)
+                {
+                    lastError = ex;
+                    await Task.Delay(Min(backoff, _options.MaximumBackoff), cancellationToken).ConfigureAwait(false);
+                    backoff = Min(TimeSpan.FromTicks(backoff.Ticks * 2), _options.MaximumBackoff);
+                }
+                finally
+                {
+                    response?.Dispose();
+                }
+            }
+
+            throw lastError ?? new HttpRequestException("Download failed after " + _options.MaxRetries + " retries.");
+        }
+
         private async Task WaitForSlotAsync(CancellationToken cancellationToken)
         {
             await _gate.WaitAsync(cancellationToken).ConfigureAwait(false);

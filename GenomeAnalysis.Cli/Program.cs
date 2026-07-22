@@ -94,8 +94,13 @@ namespace GenomeAnalysis.Cli
                     Path.Combine(Path.GetDirectoryName(databasePath) ?? ".", "pharmacogenomics.json"));
                 ruleResults.AddRange(new PharmacogenomicsEngine(pharmacogenes).Evaluate(findings));
 
+                var scores = RuleLoader.LoadPolygenicScores(
+                    Path.Combine(Path.GetDirectoryName(databasePath) ?? ".", "polygenic-scores.json"));
+                var scoreResults = new PolygenicScoreEngine(scores).Evaluate(findings);
+
                 PrintReadingSection(reader.Statistics, database);
                 PrintRuleResults(ruleResults);
+                PrintPolygenicScores(scoreResults);
                 PrintFindings(findings);
                 PrintIndeterminate(findings);
                 PrintSummary(summary);
@@ -202,6 +207,51 @@ namespace GenomeAnalysis.Cli
                 {
                     Console.WriteLine("    " + Wrap("Note : " + result.Interpretation, 4));
                 }
+            }
+        }
+
+        /// <summary>
+        /// Published polygenic scores. Leads with coverage, because a score computed
+        /// over a fraction of its variants is a fraction of a score.
+        /// </summary>
+        private static void PrintPolygenicScores(IReadOnlyList<PolygenicScoreResult> results)
+        {
+            var applicable = results.Where(r => r.Outcome != PolygenicScoreOutcome.NotApplicable).ToList();
+
+            if (applicable.Count == 0)
+            {
+                return;
+            }
+
+            Console.WriteLine();
+            Console.WriteLine("═══ SCORES POLYGÉNIQUES ═══");
+            Console.WriteLine();
+            Console.WriteLine("  Un score polygénique somme des poids publiés sur de nombreux variants.");
+            Console.WriteLine("  Il n'est jamais un produit d'odds ratios, et n'a de sens que rapporté à une");
+            Console.WriteLine("  population de référence — ce que la couverture d'une puce permet rarement.");
+
+            foreach (var result in applicable)
+            {
+                Console.WriteLine();
+                Console.WriteLine("  ──────────────────────────────────────────────────────────────");
+                Console.WriteLine("  " + result.Score.Name + "  [" + result.Score.Id + "]  ·  " + result.Score.Trait);
+                Console.WriteLine("    Couverture     : " + result.VariantsCovered + " / " + result.VariantsInScore +
+                                  " variants  (" + (result.CoveredWeightFraction * 100).ToString("0.#") +
+                                  " % du poids du score)");
+                Console.WriteLine("    Score brut     : " + result.RawScore.ToString("0.0000") + "  (somme partielle)");
+
+                if (result.Percentile.HasValue)
+                {
+                    Console.WriteLine("    Percentile     : " + result.Percentile.Value.ToString("0.#") +
+                                      "e  (z = " + result.ZScore!.Value.ToString("0.00") + ")");
+                }
+                else
+                {
+                    Console.WriteLine("    Percentile     : non calculable");
+                }
+
+                Console.WriteLine("    " + Wrap(result.Reason, 4));
+                Console.WriteLine("    Source         : PGS Catalog · " + result.Score.Citation);
             }
         }
 

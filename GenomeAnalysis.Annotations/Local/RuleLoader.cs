@@ -270,6 +270,91 @@ namespace GenomeAnalysis.Annotations.Local
             return genes;
         }
 
+        /// <summary>
+        /// Reads the polygenic scores the harvester fetched from the PGS Catalog.
+        /// </summary>
+        public static IReadOnlyList<PolygenicScore> LoadPolygenicScores(string path)
+        {
+            return File.Exists(path)
+                ? ParsePolygenicScores(File.ReadAllText(path, Encoding.UTF8))
+                : new List<PolygenicScore>();
+        }
+
+        public static IReadOnlyList<PolygenicScore> ParsePolygenicScores(string json)
+        {
+            var scores = new List<PolygenicScore>();
+
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return scores;
+            }
+
+            JObject root;
+
+            try
+            {
+                root = JObject.Parse(json);
+            }
+            catch (JsonException)
+            {
+                return scores;
+            }
+
+            foreach (var entry in (root["scores"] as JArray)?.OfType<JObject>() ?? Enumerable.Empty<JObject>())
+            {
+                var id = entry["id"]?.Value<string>();
+
+                if (string.IsNullOrWhiteSpace(id))
+                {
+                    continue;
+                }
+
+                var variants = new List<ScoreVariant>();
+
+                foreach (var variant in (entry["variants"] as JArray)?.OfType<JObject>()
+                                        ?? Enumerable.Empty<JObject>())
+                {
+                    var rsId = variant["rsId"]?.Value<string>();
+                    var effect = variant["effect"]?.Value<string>();
+                    var other = variant["other"]?.Value<string>();
+                    var weight = variant["weight"]?.Value<double?>();
+
+                    if (string.IsNullOrWhiteSpace(rsId) ||
+                        string.IsNullOrWhiteSpace(effect) || effect!.Length != 1 ||
+                        string.IsNullOrWhiteSpace(other) || other!.Length != 1 ||
+                        !weight.HasValue)
+                    {
+                        continue;
+                    }
+
+                    variants.Add(new ScoreVariant(
+                        rsId!.Trim().ToLowerInvariant(),
+                        char.ToUpperInvariant(effect[0]),
+                        char.ToUpperInvariant(other[0]),
+                        weight.Value,
+                        variant["freq"]?.Value<double?>()));
+                }
+
+                if (variants.Count == 0)
+                {
+                    continue;
+                }
+
+                scores.Add(new PolygenicScore(
+                    id!,
+                    entry["name"]?.Value<string>() ?? id!,
+                    entry["trait"]?.Value<string>() ?? "trait non précisé",
+                    entry["ancestry"]?.Value<string>() ?? "non précisée",
+                    entry["citation"]?.Value<string>() ?? id!,
+                    entry["genomeBuild"]?.Value<string>() ?? "GRCh37",
+                    variants,
+                    entry["referenceMean"]?.Value<double?>(),
+                    entry["referenceSd"]?.Value<double?>()));
+            }
+
+            return scores;
+        }
+
         private static bool TryParseKind(string? value, out RuleKind kind)
         {
             switch ((value ?? string.Empty).Trim().ToLowerInvariant())
